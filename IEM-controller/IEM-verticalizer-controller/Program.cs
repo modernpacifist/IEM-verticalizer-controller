@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            TableAPI.Table myTable = new();
+            TableAPI.Table myTable = new TableAPI.Table();
             myTable.Connect();
         }
     }
