@@ -6,14 +6,14 @@ namespace IEM_verticalizer_controller
 {
     internal class Program
     {
+        // Terminate execution of a program with exit code if connection fails
         static void InitiateConnection(ref Table table) {
-            bool connectFlag = table.Connect();
-            if (connectFlag) {
-                Console.WriteLine("Connection was established");
-            } else {
+            if (!table.Connect()) {
                 Console.WriteLine("Connection failed, check physical state");
                 Environment.Exit(1);
             }
+            Console.WriteLine("Connection was established");
+            return;
         }
 
         static void Main(string[] args) {
