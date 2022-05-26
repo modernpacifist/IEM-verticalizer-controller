@@ -4,8 +4,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net4.8</TargetFramework>
     <RootNamespace>IEM_verticalizer_controller</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
