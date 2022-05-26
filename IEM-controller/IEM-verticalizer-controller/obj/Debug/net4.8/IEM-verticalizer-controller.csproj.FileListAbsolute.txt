@@ -4,3 +4,10 @@ C:\Users\modernpacifist\Documents\github-repositories\IEM-verticalizer-controlle
 C:\Users\modernpacifist\Documents\github-repositories\IEM-verticalizer-controller\IEM-controller\IEM-verticalizer-controller\obj\Debug\net4.8\IEM-verticalizer-controller.AssemblyInfoInputs.cache
 C:\Users\modernpacifist\Documents\github-repositories\IEM-verticalizer-controller\IEM-controller\IEM-verticalizer-controller\obj\Debug\net4.8\IEM-verticalizer-controller.AssemblyInfo.cs
 C:\Users\modernpacifist\Documents\github-repositories\IEM-verticalizer-controller\IEM-controller\IEM-verticalizer-controller\obj\Debug\net4.8\IEM-verticalizer-controller.csproj.CoreCompileInputs.cache
+C:\Users\modernpacifist\Documents\github-repositories\IEM-verticalizer-controller\IEM-controller\IEM-verticalizer-controller\bin\Debug\net4.8\IEM-verticalizer-controller.exe.config
+C:\Users\modernpacifist\Documents\github-repositories\IEM-verticalizer-controller\IEM-controller\IEM-verticalizer-controller\bin\Debug\net4.8\IEM-verticalizer-controller.exe
+C:\Users\modernpacifist\Documents\github-repositories\IEM-verticalizer-controller\IEM-controller\IEM-verticalizer-controller\bin\Debug\net4.8\IEM-verticalizer-controller.pdb
+C:\Users\modernpacifist\Documents\github-repositories\IEM-verticalizer-controller\IEM-controller\IEM-verticalizer-controller\bin\Debug\net4.8\TableAPI.dll
+C:\Users\modernpacifist\Documents\github-repositories\IEM-verticalizer-controller\IEM-controller\IEM-verticalizer-controller\obj\Debug\net4.8\IEM-verticalizer-controller.csproj.CopyComplete
+C:\Users\modernpacifist\Documents\github-repositories\IEM-verticalizer-controller\IEM-controller\IEM-verticalizer-controller\obj\Debug\net4.8\IEM-verticalizer-controller.exe
+C:\Users\modernpacifist\Documents\github-repositories\IEM-verticalizer-controller\IEM-controller\IEM-verticalizer-controller\obj\Debug\net4.8\IEM-verticalizer-controller.pdb

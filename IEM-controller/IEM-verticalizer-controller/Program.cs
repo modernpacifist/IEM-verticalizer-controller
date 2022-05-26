@@ -1,19 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+using TableAPI;
+
 
 namespace IEM_verticalizer_controller
 {
     internal class Program
     {
-        static void Main(string[] args)
-        {
-            // TableAPI.Table myTable = new TableAPI.Table();
-            // myTable.Connect();
+        static void InitiateConnection(ref Table table) {
+            bool connectFlag = table.Connect();
+            if (connectFlag) {
+                Console.WriteLine("Connection was Successful");
+            } else {
+                Console.WriteLine("Connection failed, check physical state");
+                Environment.Exit(1);
+            }
+        }
+
+        static void checkPtr(ref int a) {
+            a = 10;
+        }
+
+
+        static void Main(string[] args) {
+            // Table myTable = new Table();
+            // InitiateConnection(ref myTable);
+            int b = 100;
+            Console.WriteLine(b);
+            checkPtr(ref b);
+            Console.WriteLine(b);
+
         }
     }
 }
