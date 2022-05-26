@@ -9,26 +9,16 @@ namespace IEM_verticalizer_controller
         static void InitiateConnection(ref Table table) {
             bool connectFlag = table.Connect();
             if (connectFlag) {
-                Console.WriteLine("Connection was Successful");
+                Console.WriteLine("Connection was established");
             } else {
                 Console.WriteLine("Connection failed, check physical state");
                 Environment.Exit(1);
             }
         }
 
-        static void checkPtr(ref int a) {
-            a = 10;
-        }
-
-
         static void Main(string[] args) {
-            // Table myTable = new Table();
-            // InitiateConnection(ref myTable);
-            int b = 100;
-            Console.WriteLine(b);
-            checkPtr(ref b);
-            Console.WriteLine(b);
-
+            Table myTable = new Table();
+            InitiateConnection(ref myTable);
         }
     }
 }
