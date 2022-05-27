@@ -34,7 +34,6 @@ namespace IEM_verticalizer_controller
             if (0.05f > speedValue || speedValue > 0.5f) {
                 Console.WriteLine("Speed value must be in the interval of [0.05, 0.5]");
                 Environment.Exit(1);
-                return;
             }
             bool speedFlag = tableInstance.SetSpeed(speedValue);
             if (!speedFlag) {
@@ -45,19 +44,56 @@ namespace IEM_verticalizer_controller
             return;
         }
 
+        static void StartEngine(ref Table tableInstsance) {
+            bool flag = tableInstsance.Start();
+            if (!flag) {
+                Console.WriteLine("Engine start failed");
+                Environment.Exit(1);
+            }
+            Console.WriteLine("Engine successfully started");
+            return;
+        }
+
+        static void StopEngine(ref Table tableInstsance) {
+            bool flag = tableInstsance.Stop();
+            if (!flag) {
+                Console.WriteLine("ENGINE STOP FAILED");
+            }
+            Console.WriteLine("Engine is stopping...");
+            return;
+        }
+
+        static void ResetEngine(ref Table tableInstsance) {
+            bool flag = tableInstsance.Reset();
+            if (!flag) {
+                Console.WriteLine("Engine was successfully reset");
+            }
+            return;
+        }
+
         static void Main(string[] args) {
             Table tableInstance = new Table();
 
-            //// Initiate connection with the table
-            //InitiateConnection(ref tableInstance);
+            // Initiate connection with the table
+            InitiateConnection(ref tableInstance);
 
             // Set direction 
+            SetDirection(ref tableInstance, true);
 
             // Set speed of the rotation of the table
             float sampleSpeed = 0.05f;
             SetSpeed(ref tableInstance, sampleSpeed);
 
-            Console.WriteLine("ff");
+            StartEngine(ref tableInstance);
+            System.Threading.Thread.Sleep(2000);
+
+            StopEngine(ref tableInstance);
+            SetDirection(ref tableInstance, false);
+
+            StartEngine(ref tableInstance);
+            System.Threading.Thread.Sleep(2000);
+
+            ResetEngine(ref tableInstance);
         }
     }
 }
