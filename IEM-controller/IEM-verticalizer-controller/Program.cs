@@ -50,7 +50,7 @@ namespace IEM_verticalizer_controller
                 Console.WriteLine("Engine start failed");
                 Environment.Exit(1);
             }
-            Console.WriteLine("Engine successfully started");
+            Console.WriteLine("Engine movement started");
             return;
         }
 
@@ -66,7 +66,7 @@ namespace IEM_verticalizer_controller
         static void ResetEngine(ref Table tableInstsance) {
             bool flag = tableInstsance.Reset();
             if (!flag) {
-                Console.WriteLine("Engine was successfully reset");
+                Console.WriteLine("Engine was reset");
             }
             return;
         }
