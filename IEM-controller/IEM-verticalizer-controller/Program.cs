@@ -33,6 +33,7 @@ namespace IEM_verticalizer_controller
         static void SetSpeed(ref Table tableInstance, float speedValue) {
             if (0.05f > speedValue || speedValue > 0.5f) {
                 Console.WriteLine("Speed value must be in the interval of [0.05, 0.5]");
+                Environment.Exit(1);
                 return;
             }
             bool speedFlag = tableInstance.SetSpeed(speedValue);
@@ -40,7 +41,6 @@ namespace IEM_verticalizer_controller
                 Console.WriteLine("Speed was not set due to internal error");
                 return;
             }
-            //Console.WriteLine("Speed was successfully set to: 0.5");
             Console.WriteLine(String.Format("Speed was successfully set to: {0}", speedValue));
             return;
         }
@@ -57,7 +57,7 @@ namespace IEM_verticalizer_controller
             float sampleSpeed = 0.05f;
             SetSpeed(ref tableInstance, sampleSpeed);
 
-
+            Console.WriteLine("ff");
         }
     }
 }
