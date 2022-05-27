@@ -19,13 +19,13 @@ namespace IEM_verticalizer_controller
         static void SetDirection(ref Table tableInstance, bool direction) {
             bool directionFlag = tableInstance.SetDirection(direction);
             if (!directionFlag) {
-                Console.WriteLine("Speed was not set");
+                Console.WriteLine("Direction was not set");
                 Environment.Exit(1);
             }
             if (direction) {
-                Console.WriteLine("Speed was set clockwise");
+                Console.WriteLine("Direction was set clockwise");
             } else {
-                Console.WriteLine("Speed was set counter-clockwise");
+                Console.WriteLine("Direction was set counter-clockwise");
             }
             return;
         }
@@ -77,17 +77,21 @@ namespace IEM_verticalizer_controller
             // Initiate connection with the table
             InitiateConnection(ref tableInstance);
 
-            // Set direction 
+            // Setting direction to clockwise
             SetDirection(ref tableInstance, true);
 
             // Set speed of the rotation of the table
             float sampleSpeed = 0.05f;
             SetSpeed(ref tableInstance, sampleSpeed);
 
+            // Start engine in clockwise direction
             StartEngine(ref tableInstance);
             System.Threading.Thread.Sleep(2000);
 
+            // Stopping engine
             StopEngine(ref tableInstance);
+
+            // Setting direction to counter-clockwise
             SetDirection(ref tableInstance, false);
 
             StartEngine(ref tableInstance);
