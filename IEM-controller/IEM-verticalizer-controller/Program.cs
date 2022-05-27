@@ -23,9 +23,9 @@ namespace IEM_verticalizer_controller
                 Environment.Exit(1);
             }
             if (direction) {
-                Console.WriteLine("Direction was set clockwise");
+                Console.WriteLine("Direction set to CLOCKWISE");
             } else {
-                Console.WriteLine("Direction was set counter-clockwise");
+                Console.WriteLine("Direction set to COUNTER-CLOCKWISE");
             }
             return;
         }
@@ -73,6 +73,7 @@ namespace IEM_verticalizer_controller
 
         static void Main(string[] args) {
             Table tableInstance = new Table();
+            int timeInterval = 3000;
 
             // Initiate connection with the table
             InitiateConnection(ref tableInstance);
@@ -86,7 +87,7 @@ namespace IEM_verticalizer_controller
 
             // Start engine in clockwise direction
             StartEngine(ref tableInstance);
-            System.Threading.Thread.Sleep(2000);
+            System.Threading.Thread.Sleep(timeInterval);
 
             // Stopping engine
             StopEngine(ref tableInstance);
@@ -94,9 +95,14 @@ namespace IEM_verticalizer_controller
             // Setting direction to counter-clockwise
             SetDirection(ref tableInstance, false);
 
+            // Start engine in counter-clockwise direction
             StartEngine(ref tableInstance);
-            System.Threading.Thread.Sleep(2000);
+            System.Threading.Thread.Sleep(timeInterval);
 
+            // Stopping engine
+            StopEngine(ref tableInstance);
+
+            // Resetting engine
             ResetEngine(ref tableInstance);
         }
     }
