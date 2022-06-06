@@ -155,13 +155,13 @@ namespace IEM_verticalizer_controller
         static void ManualMode(ref Table tableInstance)
         {
             // Set speed of the rotation of the table
-            SetSpeed(ref tableInstance, 0.05f);
+            SetSpeed(ref tableInstance, 0.15f);
             // Setting direction to clockwise true - from me, false - to me
             SetDirection(ref tableInstance, false);
 
             // Start engine clockwise
             StartEngine(ref tableInstance);
-            System.Threading.Thread.Sleep(7*1000);
+            System.Threading.Thread.Sleep(4*1000);
 
             // Stop and reset engine
             StopEngine(ref tableInstance);
@@ -189,15 +189,17 @@ namespace IEM_verticalizer_controller
                 tablePosition.CalculatePosition(timeInterval * tableSpeed, rotationDirection);
                 tablePosition.PrintPosition();
                 // Stopping engine
+
                 StopEngine(ref tableInstance);
+
                 // Invert rotation direction
                 rotationDirection = !rotationDirection;
-                Console.Write("\n");
+                Console.WriteLine();
             }
             // TODO: here must be a chunk of code that resets engine in [0, 0] coordinates
-            Tuple<double, double> a = tablePosition.GetCurrentPosition();
-            Console.Write("Main timer loop ended");
-            Console.Write(a);
+            Tuple<double, double> endTablePosition = tablePosition.GetCurrentPosition();
+            Console.WriteLine("Main timer loop ended");
+            Console.WriteLine(endTablePosition);
 
             // Stop and reset engine
             StopEngine(ref tableInstance);
@@ -215,7 +217,6 @@ namespace IEM_verticalizer_controller
 
             Console.WriteLine("Do you wish to start in manual mode? y/n");
             string wishedUserMode = Console.ReadLine();
-            Console.Write(wishedUserMode);
 
             if (wishedUserMode == "y")
             {
@@ -227,9 +228,10 @@ namespace IEM_verticalizer_controller
             TablePosition tablePosition = new TablePosition();
 
             // Auto mode with just specified time intervals
-            int timeInterval = 3 * 1000; // 3 seconds
-            float tableSpeed = 0.05f;
-            int totalTimeInterval = 45;
+            // TODO: convert timeInterval to max/min angles
+            int timeInterval = 4 * 1000; // 3 seconds
+            float tableSpeed = 0.15f;
+            int totalTimeInterval = 30;
             AutomaticMode(ref tableInstance, ref tablePosition, totalTimeInterval, timeInterval, tableSpeed);
 
             Environment.Exit(0);
