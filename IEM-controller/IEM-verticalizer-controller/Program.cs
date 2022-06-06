@@ -9,10 +9,17 @@ namespace IEM_verticalizer_controller
         private double x = 0.0;
         private double y = 0.0;
 
-        public void printPosition()
+        // default constructor
+        public TablePosition()
         {
-            Console.WriteLine(x.ToString());
-            Console.WriteLine(y.ToString());
+            x = 0.0;
+            y = 0.0;
+        }
+
+        // sample function, remove from prod
+        public void PrintPosition()
+        {
+            Console.WriteLine(String.Format("{0} {1}", x, y));
         }
 
         public void increaseX(double some_value)
@@ -68,7 +75,7 @@ namespace IEM_verticalizer_controller
             if (direction)
             {
                 Console.WriteLine("Direction set to CLOCKWISE");
-            } 
+            }
             else
             {
                 Console.WriteLine("Direction set to COUNTER-CLOCKWISE");
@@ -128,6 +135,18 @@ namespace IEM_verticalizer_controller
             return;
         }
 
+        // minor chance, this function won't be needed
+        static void LegalAngleCheck(double timeInterval, double angleSpeed)
+        {
+            double maxAngle = timeInterval * angleSpeed;
+            if (maxAngle > 15)
+            {
+                Console.WriteLine("Illegal max angle");
+                Environment.Exit(1);
+            }
+            return;
+        }
+
         static void Main(string[] args)
         {
             Table tableInstance = new Table();
@@ -136,8 +155,8 @@ namespace IEM_verticalizer_controller
             // Initiate connection with the table
             InitiateConnection(ref tableInstance);
 
-            TablePosition a = new TablePosition();
-            a.printPosition();
+            TablePosition tablePosition = new TablePosition();
+            tablePosition.PrintPosition();
 
             //// Set speed of the rotation of the table
             //float sampleSpeed = 0.05f;
