@@ -66,6 +66,7 @@ namespace IEM_verticalizer_controller
         static void SetDirection(ref Table tableInstance, bool direction)
         {
             bool directionFlag = tableInstance.SetDirection(direction);
+            System.Threading.Thread.Sleep(100);
             if (!directionFlag)
             {
                 Console.WriteLine("Direction was not set");
@@ -92,6 +93,7 @@ namespace IEM_verticalizer_controller
             }
 
             bool speedFlag = tableInstance.SetSpeed(speedValue);
+            System.Threading.Thread.Sleep(100);
             if (!speedFlag)
             {
                 Console.WriteLine("Speed was not set due to internal error");
@@ -104,6 +106,7 @@ namespace IEM_verticalizer_controller
         static void StartEngine(ref Table tableInstsance)
         {
             bool flag = tableInstsance.Start();
+            System.Threading.Thread.Sleep(100);
             if (!flag)
             {
                 Console.WriteLine("Engine start failed");
@@ -117,6 +120,7 @@ namespace IEM_verticalizer_controller
         {
             // add try/except block to stop engine definitely
             bool flag = tableInstsance.Stop();
+            System.Threading.Thread.Sleep(100);
             if (!flag)
             {
                 Console.WriteLine("ENGINE STOP FAILED");
@@ -128,6 +132,7 @@ namespace IEM_verticalizer_controller
         static void ResetEngine(ref Table tableInstsance)
         {
             bool flag = tableInstsance.Reset();
+            System.Threading.Thread.Sleep(100);
             if (!flag)
             {
                 Console.WriteLine("Engine was reset");
@@ -135,7 +140,7 @@ namespace IEM_verticalizer_controller
             return;
         }
 
-        // minor chance, this function won't be needed
+        // minor chance this function won't be needed
         static void LegalAngleCheck(double timeInterval, double angleSpeed)
         {
             double maxAngle = timeInterval * angleSpeed;
@@ -151,12 +156,12 @@ namespace IEM_verticalizer_controller
         {
             // Set speed of the rotation of the table
             SetSpeed(ref tableInstance, 0.05f);
-            // Setting direction to clockwise
+            // Setting direction to clockwise true - from me, false - to me
             SetDirection(ref tableInstance, false);
 
             // Start engine clockwise
             StartEngine(ref tableInstance);
-            System.Threading.Thread.Sleep(2*1000);
+            System.Threading.Thread.Sleep(7*1000);
 
             // Stop and reset engine
             StopEngine(ref tableInstance);
@@ -169,15 +174,15 @@ namespace IEM_verticalizer_controller
             bool rotationDirection = true;
             Stopwatch Timer = new Stopwatch();
             Timer.Start();
+
+            // Set speed of the rotation of the table
+            SetSpeed(ref tableInstance, tableSpeed);
             while (Timer.Elapsed.TotalSeconds < totalSeconds)
             {
-                // Set speed of the rotation of the table
-                SetSpeed(ref tableInstance, tableSpeed);
-
                 // Setting direction to clockwise
                 SetDirection(ref tableInstance, rotationDirection);
 
-                // Start engine clockwise
+                // Start engine
                 StartEngine(ref tableInstance);
                 System.Threading.Thread.Sleep(timeInterval);
                 //timeInterval *= 2;
@@ -185,13 +190,13 @@ namespace IEM_verticalizer_controller
                 tablePosition.PrintPosition();
                 // Stopping engine
                 StopEngine(ref tableInstance);
-                System.Threading.Thread.Sleep(100);
-                Console.Write("");
+                // Invert rotation direction
                 rotationDirection = !rotationDirection;
+                Console.Write("\n");
             }
             // TODO: here must be a chunk of code that resets engine in [0, 0] coordinates
             Tuple<double, double> a = tablePosition.GetCurrentPosition();
-            Console.Write("HEHe XD");
+            Console.Write("Main timer loop ended");
             Console.Write(a);
 
             // Stop and reset engine
@@ -224,7 +229,7 @@ namespace IEM_verticalizer_controller
             // Auto mode with just specified time intervals
             int timeInterval = 3 * 1000; // 3 seconds
             float tableSpeed = 0.05f;
-            int totalTimeInterval = 30;
+            int totalTimeInterval = 45;
             AutomaticMode(ref tableInstance, ref tablePosition, totalTimeInterval, timeInterval, tableSpeed);
 
             Environment.Exit(0);
