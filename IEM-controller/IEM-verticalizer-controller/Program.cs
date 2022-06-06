@@ -148,34 +148,40 @@ namespace IEM_verticalizer_controller
             return;
         }
 
-        static void Main(string[] args)
+        static void ManualMode(ref Table tableInstance)
         {
-            Table tableInstance = new Table();
-            // This value is from prompt in minutes
-            int timeInterval = 3 * 1000; // 3 seconds
-
-            // Initiate connection with the table
-            InitiateConnection(ref tableInstance);
-
-            // Create position instance of a table
-            TablePosition tablePosition = new TablePosition();
-            tablePosition.PrintPosition();
-
             // Set speed of the rotation of the table
-            float TableSpeed = 0.05f;
-            SetSpeed(ref tableInstance, TableSpeed);
+            SetSpeed(ref tableInstance, 0.05f);
+            // Setting direction to clockwise
+            SetDirection(ref tableInstance, false);
 
-            int sampleSeconds = 60;
+            // Start engine clockwise
+            StartEngine(ref tableInstance);
+            System.Threading.Thread.Sleep(6*1000);
+
+            // Stopping engine
+            StopEngine(ref tableInstance);
+
+            // Resetting engine
+            ResetEngine(ref tableInstance);
+        }
+
+        static void AutomaticMode(ref Table tableInstance, int totalSeconds, int timeInterval, float tableSpeed)
+        {
             Stopwatch Timer = new Stopwatch();
             Timer.Start();
-            while (Timer.Elapsed.TotalSeconds < sampleSeconds)
+            while (Timer.Elapsed.TotalSeconds < totalSeconds)
             {
+                // Set speed of the rotation of the table
+                SetSpeed(ref tableInstance, tableSpeed);
+
                 // Setting direction to clockwise
                 SetDirection(ref tableInstance, true);
 
                 // Start engine clockwise
                 StartEngine(ref tableInstance);
                 System.Threading.Thread.Sleep(timeInterval);
+                timeInterval *= 2;
 
                 // Stopping engine
                 StopEngine(ref tableInstance);
@@ -186,31 +192,41 @@ namespace IEM_verticalizer_controller
                 // Start engine in counter-clockwise direction
                 StartEngine(ref tableInstance);
                 System.Threading.Thread.Sleep(timeInterval);
+                timeInterval /= 2;
             }
+            // TODO: here must be a chunk of code that resets engine in [0, 0] coordinates
+
             Timer.Stop();
+        }
 
-            //// Setting direction to clockwise
-            //SetDirection(ref tableInstance, true);
+        static void Main(string[] args)
+        {
+            // Essensial instance for engine control
+            Table tableInstance = new Table();
 
-            //// Start engine clockwise
-            //StartEngine(ref tableInstance);
-            //System.Threading.Thread.Sleep(timeInterval);
+            // Initiate connection with the engine
+            InitiateConnection(ref tableInstance);
 
-            //// Stopping engine
-            //StopEngine(ref tableInstance);
+            Console.WriteLine("Do you wish to start in manual mode? y/n");
+            string wishedUserMode = Console.ReadLine();
+            Console.Write(wishedUserMode);
 
-            //// Setting direction to counter-clockwise
-            //SetDirection(ref tableInstance, false);
+            if (wishedUserMode == "y")
+            {
+                ManualMode(ref tableInstance);
+                Environment.Exit(0);
+            }
 
-            //// Start engine in counter-clockwise direction
-            //StartEngine(ref tableInstance);
-            //System.Threading.Thread.Sleep(timeInterval);
+            //// Create position instance of a table (probably not needed)
+            //TablePosition tablePosition = new TablePosition();
+            //tablePosition.PrintPosition();
 
-            //// Stopping engine
-            //StopEngine(ref tableInstance);
+            // Auto mode with just specified time intervals
+            int timeInterval = 3 * 1000; // 3 seconds
+            float tableSpeed = 0.05f;
+            AutomaticMode(ref tableInstance, 60, timeInterval, tableSpeed);
 
-            //// Resetting engine
-            //ResetEngine(ref tableInstance);
+            Environment.Exit(0);
         }
     }
 }
