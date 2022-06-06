@@ -42,6 +42,24 @@ namespace IEM_verticalizer_controller
         {
             this.y -= some_value;
         }
+
+        public void ClockWiseRotation(double someValue)
+        {
+            this.x += someValue;
+            this.y -= someValue;
+        }
+
+        public void CounterClockWiseRotation(double someValue)
+        {
+            this.x -= someValue;
+            this.y += someValue;
+        }
+
+        public double[] GetCurrentPosition()
+        {
+            double[] coords = {this.x, this.y};
+            return coords;
+        }
     }
 
     internal class Program
@@ -157,16 +175,14 @@ namespace IEM_verticalizer_controller
 
             // Start engine clockwise
             StartEngine(ref tableInstance);
-            System.Threading.Thread.Sleep(6*1000);
+            System.Threading.Thread.Sleep(2*1000);
 
-            // Stopping engine
+            // Stop and reset engine
             StopEngine(ref tableInstance);
-
-            // Resetting engine
             ResetEngine(ref tableInstance);
         }
 
-        static void AutomaticMode(ref Table tableInstance, int totalSeconds, int timeInterval, float tableSpeed)
+        static void AutomaticMode(ref Table tableInstance, ref TablePosition tablePosition, int totalSeconds, int timeInterval, float tableSpeed)
         {
             Stopwatch Timer = new Stopwatch();
             Timer.Start();
@@ -182,6 +198,8 @@ namespace IEM_verticalizer_controller
                 StartEngine(ref tableInstance);
                 System.Threading.Thread.Sleep(timeInterval);
                 timeInterval *= 2;
+                tablePosition.ClockWiseRotation(timeInterval * tableSpeed);
+                tablePosition.PrintPosition();
 
                 // Stopping engine
                 StopEngine(ref tableInstance);
@@ -193,9 +211,15 @@ namespace IEM_verticalizer_controller
                 StartEngine(ref tableInstance);
                 System.Threading.Thread.Sleep(timeInterval);
                 timeInterval /= 2;
+                tablePosition.CounterClockWiseRotation(timeInterval * tableSpeed);
+                tablePosition.PrintPosition();
             }
             // TODO: here must be a chunk of code that resets engine in [0, 0] coordinates
+            tablePosition.PrintPosition();
 
+            // Stop and reset engine
+            StopEngine(ref tableInstance);
+            ResetEngine(ref tableInstance);
             Timer.Stop();
         }
 
@@ -217,14 +241,14 @@ namespace IEM_verticalizer_controller
                 Environment.Exit(0);
             }
 
-            //// Create position instance of a table (probably not needed)
-            //TablePosition tablePosition = new TablePosition();
+            // Create position instance of a table
+            TablePosition tablePosition = new TablePosition();
             //tablePosition.PrintPosition();
 
             // Auto mode with just specified time intervals
             int timeInterval = 3 * 1000; // 3 seconds
             float tableSpeed = 0.05f;
-            AutomaticMode(ref tableInstance, 60, timeInterval, tableSpeed);
+            AutomaticMode(ref tableInstance, ref tablePosition, 30, timeInterval, tableSpeed);
 
             Environment.Exit(0);
         }
