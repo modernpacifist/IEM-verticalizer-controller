@@ -20,20 +20,21 @@ namespace IEM_verticalizer_controller
         // sample function, remove from prod
         public void PrintPosition()
         {
-            Console.WriteLine(String.Format("{0} {1}", x, y));
+            Console.WriteLine(String.Format("Current table position x: {0}, y: {1}", x, y));
         }
 
-        // these two functions are bullshit
-        public void ClockWiseRotation(double someValue)
+        public void SomeRotationXD(double someValue, bool flag)
         {
-            this.x += someValue;
-            this.y -= someValue;
-        }
-
-        public void CounterClockWiseRotation(double someValue)
-        {
-            this.x -= someValue;
-            this.y += someValue;
+            if (flag)
+            {
+                this.x -= someValue;
+                this.y += someValue;
+            }
+            else
+            {
+                this.x += someValue;
+                this.y -= someValue;
+            }
         }
 
         public double[] GetCurrentPosition()
@@ -180,7 +181,7 @@ namespace IEM_verticalizer_controller
                 StartEngine(ref tableInstance);
                 System.Threading.Thread.Sleep(timeInterval);
                 //timeInterval *= 2;
-                tablePosition.ClockWiseRotation(timeInterval * tableSpeed);
+                tablePosition.SomeRotationXD(timeInterval * tableSpeed, rotationDirection);
                 tablePosition.PrintPosition();
                 // Stopping engine
                 StopEngine(ref tableInstance);
