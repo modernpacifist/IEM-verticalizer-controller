@@ -23,26 +23,7 @@ namespace IEM_verticalizer_controller
             Console.WriteLine(String.Format("{0} {1}", x, y));
         }
 
-        public void IncreaseX(double some_value)
-        {
-            this.x += some_value;
-        }
-
-        public void DecreaseX(double some_value)
-        {
-            this.x -= some_value;
-        }
-
-        public void IncreaseY(double some_value)
-        {
-            this.y += some_value;
-        }
-
-        public void DecreaseY(double some_value)
-        {
-            this.y -= some_value;
-        }
-
+        // these two functions are bullshit
         public void ClockWiseRotation(double someValue)
         {
             this.x += someValue;
@@ -57,8 +38,7 @@ namespace IEM_verticalizer_controller
 
         public double[] GetCurrentPosition()
         {
-            double[] coords = {this.x, this.y};
-            return coords;
+            return new double[] { this.x, this.y };
         }
     }
 
@@ -184,6 +164,8 @@ namespace IEM_verticalizer_controller
 
         static void AutomaticMode(ref Table tableInstance, ref TablePosition tablePosition, int totalSeconds, int timeInterval, float tableSpeed)
         {
+            Console.WriteLine("AUTOMATIC mode engaged...");
+            bool rotationDirection = true;
             Stopwatch Timer = new Stopwatch();
             Timer.Start();
             while (Timer.Elapsed.TotalSeconds < totalSeconds)
@@ -192,27 +174,17 @@ namespace IEM_verticalizer_controller
                 SetSpeed(ref tableInstance, tableSpeed);
 
                 // Setting direction to clockwise
-                SetDirection(ref tableInstance, true);
+                SetDirection(ref tableInstance, rotationDirection);
 
                 // Start engine clockwise
                 StartEngine(ref tableInstance);
                 System.Threading.Thread.Sleep(timeInterval);
-                timeInterval *= 2;
+                //timeInterval *= 2;
                 tablePosition.ClockWiseRotation(timeInterval * tableSpeed);
                 tablePosition.PrintPosition();
-
                 // Stopping engine
                 StopEngine(ref tableInstance);
-
-                // Setting direction to counter-clockwise
-                SetDirection(ref tableInstance, false);
-
-                // Start engine in counter-clockwise direction
-                StartEngine(ref tableInstance);
-                System.Threading.Thread.Sleep(timeInterval);
-                timeInterval /= 2;
-                tablePosition.CounterClockWiseRotation(timeInterval * tableSpeed);
-                tablePosition.PrintPosition();
+                rotationDirection = !rotationDirection;
             }
             // TODO: here must be a chunk of code that resets engine in [0, 0] coordinates
             tablePosition.PrintPosition();
