@@ -23,7 +23,7 @@ namespace IEM_verticalizer_controller
             Console.WriteLine(String.Format("Current table position x: {0}, y: {1}", x, y));
         }
 
-        public void SomeRotationXD(double someValue, bool flag)
+        public void CalculatePosition(double someValue, bool flag)
         {
             if (flag)
             {
@@ -37,9 +37,9 @@ namespace IEM_verticalizer_controller
             }
         }
 
-        public double[] GetCurrentPosition()
+        public Tuple<double, double> GetCurrentPosition()
         {
-            return new double[] { this.x, this.y };
+            return new Tuple<double, double> ( this.x, this.y );
         }
     }
 
@@ -181,14 +181,18 @@ namespace IEM_verticalizer_controller
                 StartEngine(ref tableInstance);
                 System.Threading.Thread.Sleep(timeInterval);
                 //timeInterval *= 2;
-                tablePosition.SomeRotationXD(timeInterval * tableSpeed, rotationDirection);
+                tablePosition.CalculatePosition(timeInterval * tableSpeed, rotationDirection);
                 tablePosition.PrintPosition();
                 // Stopping engine
                 StopEngine(ref tableInstance);
+                System.Threading.Thread.Sleep(100);
+                Console.Write("");
                 rotationDirection = !rotationDirection;
             }
             // TODO: here must be a chunk of code that resets engine in [0, 0] coordinates
-            tablePosition.PrintPosition();
+            Tuple<double, double> a = tablePosition.GetCurrentPosition();
+            Console.Write("HEHe XD");
+            Console.Write(a);
 
             // Stop and reset engine
             StopEngine(ref tableInstance);
@@ -216,12 +220,12 @@ namespace IEM_verticalizer_controller
 
             // Create position instance of a table
             TablePosition tablePosition = new TablePosition();
-            //tablePosition.PrintPosition();
 
             // Auto mode with just specified time intervals
             int timeInterval = 3 * 1000; // 3 seconds
             float tableSpeed = 0.05f;
-            AutomaticMode(ref tableInstance, ref tablePosition, 30, timeInterval, tableSpeed);
+            int totalTimeInterval = 30;
+            AutomaticMode(ref tableInstance, ref tablePosition, totalTimeInterval, timeInterval, tableSpeed);
 
             Environment.Exit(0);
         }
