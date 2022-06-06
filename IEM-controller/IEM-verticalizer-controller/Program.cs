@@ -1,5 +1,6 @@
 ﻿using System;
 using TableAPI;
+using System.Diagnostics;
 
 
 namespace IEM_verticalizer_controller
@@ -22,24 +23,24 @@ namespace IEM_verticalizer_controller
             Console.WriteLine(String.Format("{0} {1}", x, y));
         }
 
-        public void increaseX(double some_value)
+        public void IncreaseX(double some_value)
         {
             this.x += some_value;
         }
 
-        public void decreaseX(double some_value)
+        public void DecreaseX(double some_value)
         {
-            this.x += some_value;
+            this.x -= some_value;
         }
 
-        public void increaseY(double some_value)
+        public void IncreaseY(double some_value)
         {
             this.y += some_value;
         }
 
-        public void decreaseY(double some_value)
+        public void DecreaseY(double some_value)
         {
-            this.y += some_value;
+            this.y -= some_value;
         }
     }
 
@@ -150,17 +151,43 @@ namespace IEM_verticalizer_controller
         static void Main(string[] args)
         {
             Table tableInstance = new Table();
-            int timeInterval = 3000;
+            // This value is from prompt in minutes
+            int timeInterval = 3 * 1000; // 3 seconds
 
             // Initiate connection with the table
             InitiateConnection(ref tableInstance);
 
+            // Create position instance of a table
             TablePosition tablePosition = new TablePosition();
             tablePosition.PrintPosition();
 
-            //// Set speed of the rotation of the table
-            //float sampleSpeed = 0.05f;
-            //SetSpeed(ref tableInstance, sampleSpeed);
+            // Set speed of the rotation of the table
+            float TableSpeed = 0.05f;
+            SetSpeed(ref tableInstance, TableSpeed);
+
+            int sampleSeconds = 60;
+            Stopwatch Timer = new Stopwatch();
+            Timer.Start();
+            while (Timer.Elapsed.TotalSeconds < sampleSeconds)
+            {
+                // Setting direction to clockwise
+                SetDirection(ref tableInstance, true);
+
+                // Start engine clockwise
+                StartEngine(ref tableInstance);
+                System.Threading.Thread.Sleep(timeInterval);
+
+                // Stopping engine
+                StopEngine(ref tableInstance);
+
+                // Setting direction to counter-clockwise
+                SetDirection(ref tableInstance, false);
+
+                // Start engine in counter-clockwise direction
+                StartEngine(ref tableInstance);
+                System.Threading.Thread.Sleep(timeInterval);
+            }
+            Timer.Stop();
 
             //// Setting direction to clockwise
             //SetDirection(ref tableInstance, true);
