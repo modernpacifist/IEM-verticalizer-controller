@@ -245,9 +245,14 @@ namespace IEM_verticalizer_controller
             InitiateConnection(ref tableInstance);
 
             Console.WriteLine("Do you wish to start in manual mode? y/n");
-            string wishedUserMode = Console.ReadLine();
+            string userInputMode = Console.ReadLine();
+            while (userInputMode != "n" && userInputMode != "y")
+            {
+                Console.WriteLine("Please answer with 'y' or 'n'");
+                userInputMode = Console.ReadLine();
+            }
 
-            if (wishedUserMode == "y")
+            if (userInputMode == "y")
             {
                 ManualMode(ref tableInstance);
                 Environment.Exit(0);
@@ -255,7 +260,6 @@ namespace IEM_verticalizer_controller
 
             // Create position instance of a table
             TablePosition tablePosition = new TablePosition();
-
             AutomaticMode(ref tableInstance, ref tablePosition);
 
             Environment.Exit(0);
