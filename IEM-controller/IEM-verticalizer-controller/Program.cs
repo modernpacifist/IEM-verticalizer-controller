@@ -160,7 +160,7 @@ namespace IEM_verticalizer_controller
                 Console.Write("Input speed: ");
                 float speed = float.Parse(Console.ReadLine());
 
-                Console.Write("Input direction direction to clockwise true - from me, false - to me: ");
+                Console.Write("Input direction to clockwise true - from me, false - to me: ");
                 bool directionFlag = bool.Parse(Console.ReadLine());
 
                 Console.Write("Input time interval (in seconds): ");
@@ -189,16 +189,24 @@ namespace IEM_verticalizer_controller
             ResetEngine(ref tableInstance);
         }
 
-        static void AutomaticMode(ref Table tableInstance, ref TablePosition tablePosition, int totalSeconds, int timeInterval, float tableSpeed)
+        static void AutomaticMode(ref Table tableInstance, ref TablePosition tablePosition)
         {
             Console.WriteLine("AUTOMATIC mode engaged...");
+
+            Console.Write("Input speed: ");
+            float tableSpeed = float.Parse(Console.ReadLine());
+            Console.Write("Input time interval (in seconds): ");
+            int timeInterval = int.Parse(Console.ReadLine()) * 1000;
+            Console.Write("Input overall time interval (in seconds): ");
+            int totalTimeInterval = int.Parse(Console.ReadLine());
+
             bool rotationDirection = true;
             Stopwatch Timer = new Stopwatch();
             Timer.Start();
 
             // Set speed of the rotation of the table
             SetSpeed(ref tableInstance, tableSpeed);
-            while (Timer.Elapsed.TotalSeconds < totalSeconds)
+            while (Timer.Elapsed.TotalSeconds < totalTimeInterval)
             {
                 // Setting direction to clockwise
                 SetDirection(ref tableInstance, rotationDirection);
@@ -219,7 +227,7 @@ namespace IEM_verticalizer_controller
             }
             // TODO: here must be a chunk of code that resets engine in [0, 0] coordinates
             Tuple<double, double> endTablePosition = tablePosition.GetCurrentPosition();
-            Console.WriteLine("Main timer loop ended");
+            Console.WriteLine("Main timer loop exceeded");
             Console.WriteLine(endTablePosition);
 
             // Stop and reset engine
@@ -248,12 +256,7 @@ namespace IEM_verticalizer_controller
             // Create position instance of a table
             TablePosition tablePosition = new TablePosition();
 
-            // Auto mode with just specified time intervals
-            // TODO: convert timeInterval to max/min angles
-            int timeInterval = 4 * 1000; // 3 seconds
-            float tableSpeed = 0.15f;
-            int totalTimeInterval = 30;
-            AutomaticMode(ref tableInstance, ref tablePosition, totalTimeInterval, timeInterval, tableSpeed);
+            AutomaticMode(ref tableInstance, ref tablePosition);
 
             Environment.Exit(0);
         }
