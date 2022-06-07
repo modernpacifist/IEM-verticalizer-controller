@@ -154,14 +154,35 @@ namespace IEM_verticalizer_controller
 
         static void ManualMode(ref Table tableInstance)
         {
-            // Set speed of the rotation of the table
-            SetSpeed(ref tableInstance, 0.15f);
-            // Setting direction to clockwise true - from me, false - to me
-            SetDirection(ref tableInstance, false);
+            Console.Write("MANUAL mode engaged...\n");
+            while (true)
+            {
+                Console.Write("Input speed: ");
+                float speed = float.Parse(Console.ReadLine());
 
-            // Start engine clockwise
-            StartEngine(ref tableInstance);
-            System.Threading.Thread.Sleep(4*1000);
+                Console.Write("Input direction direction to clockwise true - from me, false - to me: ");
+                bool directionFlag = bool.Parse(Console.ReadLine());
+
+                Console.Write("Input time interval (in seconds): ");
+                int seconds = int.Parse(Console.ReadLine());
+                // Set speed of the rotation of the table
+                SetSpeed(ref tableInstance, speed);
+                // Setting direction to clockwise true - from me, false - to me
+                SetDirection(ref tableInstance, directionFlag);
+
+                // Start engine clockwise
+                StartEngine(ref tableInstance);
+                System.Threading.Thread.Sleep(seconds*1000);
+                StopEngine(ref tableInstance);
+
+                Console.Write("Continue? y/n\n");
+                string exitFlag = Console.ReadLine();
+                if (exitFlag == "y")
+                {
+                    continue;
+                }
+                break;
+            }
 
             // Stop and reset engine
             StopEngine(ref tableInstance);
