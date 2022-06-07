@@ -1,7 +1,6 @@
 ﻿using System;
 using TableAPI;
 using System.Diagnostics;
-using System.Collections.Generic;  
 
 
 namespace IEM_verticalizer_controller
@@ -44,16 +43,30 @@ namespace IEM_verticalizer_controller
         }
     }
 
-    public class Engine
+    // TODO:
+    internal class Engine : Table
     {
-        private double speed = 0.0f;
+        private float speed = 0.0f;
         private bool directionFlag = true;
+        private int fullInterval = 10;
+        private int rotationInterval = 3;
+        //public float speed = 0.0f;
+        //public bool directionFlag = true;
+        //public int fullInterval = 10;
+        //public int rotationInterval = 3;
 
         // default constructor
-        Engine(double speed, bool directionFlag)
+        public Engine(float speed, bool directionFlag, int fullInterval, int rotationInterval)
         {
             this.speed = speed;
             this.directionFlag = directionFlag;
+            this.fullInterval = fullInterval;
+            this.rotationInterval = rotationInterval;
+        }
+
+        public void PrintParameters()
+        {
+            Console.WriteLine(speed);
         }
 
         void StartEngine()
@@ -240,7 +253,7 @@ namespace IEM_verticalizer_controller
             Console.Write(string.Format("resetTimeInterval: {0}\n", resetTimeInterval));
 
             // do something with this "directionFlag"
-            bool directionFlag = a >= 0;
+            bool directionFlag = a > 0;
             SetSpeed(ref tableInstance, tableSpeed);
             SetDirection(ref tableInstance, directionFlag);
             StartEngine(ref tableInstance);
@@ -254,7 +267,7 @@ namespace IEM_verticalizer_controller
 
             Console.Write("Input speed: ");
             float tableSpeed = float.Parse(Console.ReadLine());
-            Console.Write("Input time interval (in seconds): ");
+            Console.Write("Input rotation interval (in seconds): ");
             int timeInterval = int.Parse(Console.ReadLine()) * 1000;
             Console.Write("Input overall time interval (in seconds): ");
             int totalTimeInterval = int.Parse(Console.ReadLine());
@@ -302,19 +315,19 @@ namespace IEM_verticalizer_controller
             // Initiate connection with the engine
             InitiateConnection(ref tableInstance);
 
-            //Console.WriteLine("Do you wish to start in manual mode? y/n");
-            //string userInputMode = Console.ReadLine();
-            //while (userInputMode != "n" && userInputMode != "y")
-            //{
-            //    Console.WriteLine("Please answer with 'y' or 'n'");
-            //    userInputMode = Console.ReadLine();
-            //}
+            Console.WriteLine("Do you wish to start in manual mode? y/n");
+            string userInputMode = Console.ReadLine();
+            while (userInputMode != "n" && userInputMode != "y")
+            {
+                Console.WriteLine("Please answer with 'y' or 'n'");
+                userInputMode = Console.ReadLine();
+            }
 
-            //if (userInputMode == "y")
-            //{
-            //    ManualMode(ref tableInstance);
-            //    Environment.Exit(0);
-            //}
+            if (userInputMode == "y")
+            {
+                ManualMode(ref tableInstance);
+                Environment.Exit(0);
+            }
 
             // Create position instance of a table
             TablePosition tablePosition = new TablePosition();
