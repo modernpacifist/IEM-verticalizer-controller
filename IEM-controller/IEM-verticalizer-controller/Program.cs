@@ -70,7 +70,7 @@ namespace IEM_verticalizer_controller
     {
         static void EmergencyStop(ref Table tableInstance)
         {
-            // Intercept Ctrl+C from the user input during exeuciton and return table into horizontal position
+            // Intercept Ctrl+C from the user input during execution and return table into horizontal position
             Console.Write("Emergency stop called\n");
             StopEngine(ref tableInstance);
             ResetEngine(ref tableInstance);
@@ -216,15 +216,17 @@ namespace IEM_verticalizer_controller
             ResetEngine(ref tableInstance);
         }
 
-        static void NormalizeHorizontalPosition(ref Table tableInstance, ref TablePosition tablePosition)
+        // this function can be simplified without interval calculations
+        static void NormalizeHorizontalPosition(ref Table tableInstance, ref TablePosition tablePosition, float tableSpeed)
         {
             Tuple<double, double> endTablePosition = tablePosition.GetCurrentPosition();
 
             double a = endTablePosition.Item1;
             double b = endTablePosition.Item2;
-            double offset = Math.Max(a, b);
-            Console.WriteLine(offset);
-            if (offset == 0)
+            // TODO: write a function that will find max from whole tuple
+            double positionOffset = Math.Max(a, b);
+            Console.WriteLine(positionOffset);
+            if (positionOffset == 0)
             {
                 return;
             }
@@ -232,23 +234,18 @@ namespace IEM_verticalizer_controller
 
             //Console.WriteLine(b);
 
-            float SAMPLESPEED = 0.1f;
-
             // distance divided by speed
             //double resetTimeInterval = c/0.15f;
-            int resetTimeInterval = (int)(offset / SAMPLESPEED);
-            Console.Write(string.Format("resetTimeInterval: {0}", resetTimeInterval));
-            Console.WriteLine();
+            int resetTimeInterval = (int)(positionOffset / tableSpeed);
+            Console.Write(string.Format("resetTimeInterval: {0}\n", resetTimeInterval));
 
+            // do something with this "directionFlag"
             bool directionFlag = a >= 0;
-            SetSpeed(ref tableInstance, SAMPLESPEED);
+            SetSpeed(ref tableInstance, tableSpeed);
             SetDirection(ref tableInstance, directionFlag);
             StartEngine(ref tableInstance);
 
-            //System.Threading.Thread.Sleep(4*1000);
             System.Threading.Thread.Sleep(resetTimeInterval);
-
-            StopEngine(ref tableInstance);
         }
 
         static void AutomaticMode(ref Table tableInstance, ref TablePosition tablePosition)
@@ -290,12 +287,10 @@ namespace IEM_verticalizer_controller
             Timer.Stop();
             Console.WriteLine("Main timer loop exceeded");
             // TODO: here must be a chunk of code that resets engine in [0, 0] coordinates
-            //Tuple<double, double> endTablePosition = tablePosition.GetCurrentPosition();
-            //Console.WriteLine(endTablePosition);
-            NormalizeHorizontalPosition(ref tableInstance, ref tablePosition);
+            NormalizeHorizontalPosition(ref tableInstance, ref tablePosition, tableSpeed);
 
             // Stop and reset engine
-            // StopEngine(ref tableInstance);
+            StopEngine(ref tableInstance);
             ResetEngine(ref tableInstance);
         }
 
