@@ -1,6 +1,7 @@
 ﻿using System;
 using TableAPI;
 using System.Diagnostics;
+using System.Collections.Generic;  
 
 
 namespace IEM_verticalizer_controller
@@ -40,6 +41,28 @@ namespace IEM_verticalizer_controller
         public Tuple<double, double> GetCurrentPosition()
         {
             return new Tuple<double, double> ( this.x, this.y );
+        }
+    }
+
+    public class Engine
+    {
+        private double speed = 0.0f;
+        private bool directionFlag = true;
+
+        // default constructor
+        Engine(double speed, bool directionFlag)
+        {
+            this.speed = speed;
+            this.directionFlag = directionFlag;
+        }
+
+        void StartEngine()
+        {
+
+        }
+        void RotateEngine()
+        {
+
         }
     }
 
@@ -189,6 +212,33 @@ namespace IEM_verticalizer_controller
             ResetEngine(ref tableInstance);
         }
 
+        static void NormalizeHorizontalPosition(ref Table tableInstance, ref TablePosition tablePosition)
+        {
+            Tuple<double, double> endTablePosition = tablePosition.GetCurrentPosition();
+
+            double a = endTablePosition.Item1;
+            double b = endTablePosition.Item2;
+            double c = Math.Max(a, b);
+            Console.WriteLine(c);
+            //Environment.Exit(1);
+
+            //Console.WriteLine(b);
+
+            // distance divided by speed
+            //double resetTimeInterval = c/0.15f;
+            int resetTimeInterval = (int)(c / 0.15f);
+
+            bool directionFlag = a <= 0;
+            SetSpeed(ref tableInstance, 0.15f);
+            SetDirection(ref tableInstance, directionFlag);
+            StartEngine(ref tableInstance);
+
+            //System.Threading.Thread.Sleep(4*1000);
+            System.Threading.Thread.Sleep(resetTimeInterval);
+
+            StopEngine(ref tableInstance);
+        }
+
         static void AutomaticMode(ref Table tableInstance, ref TablePosition tablePosition)
         {
             Console.WriteLine("AUTOMATIC mode engaged...");
@@ -217,23 +267,24 @@ namespace IEM_verticalizer_controller
                 //timeInterval *= 2;
                 tablePosition.CalculatePosition(timeInterval * tableSpeed, rotationDirection);
                 tablePosition.PrintPosition();
-                // Stopping engine
 
+                // Stopping engine
                 StopEngine(ref tableInstance);
 
                 // Invert rotation direction
                 rotationDirection = !rotationDirection;
                 Console.WriteLine();
             }
-            // TODO: here must be a chunk of code that resets engine in [0, 0] coordinates
-            Tuple<double, double> endTablePosition = tablePosition.GetCurrentPosition();
+            Timer.Stop();
             Console.WriteLine("Main timer loop exceeded");
-            Console.WriteLine(endTablePosition);
+            // TODO: here must be a chunk of code that resets engine in [0, 0] coordinates
+            //Tuple<double, double> endTablePosition = tablePosition.GetCurrentPosition();
+            //Console.WriteLine(endTablePosition);
+            NormalizeHorizontalPosition(ref tableInstance, ref tablePosition);
 
             // Stop and reset engine
             StopEngine(ref tableInstance);
             ResetEngine(ref tableInstance);
-            Timer.Stop();
         }
 
         static void Main(string[] args)
