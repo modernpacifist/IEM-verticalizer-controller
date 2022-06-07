@@ -21,7 +21,7 @@ namespace IEM_verticalizer_controller
         // sample function, remove from prod
         public void PrintPosition()
         {
-            Console.WriteLine(String.Format("Current table position x: {0}, y: {1}", x, y));
+            Console.WriteLine(string.Format("Current table position x: {0}, y: {1}", x, y));
         }
 
         public void CalculatePosition(double someValue, bool flag)
@@ -71,6 +71,10 @@ namespace IEM_verticalizer_controller
         static void EmergencyStop(ref Table tableInstance)
         {
             // Intercept Ctrl+C from the user input during exeuciton and return table into horizontal position
+            Console.Write("Emergency stop called\n");
+            StopEngine(ref tableInstance);
+            ResetEngine(ref tableInstance);
+            Environment.Exit(0);
             return;
         }
 
@@ -218,17 +222,23 @@ namespace IEM_verticalizer_controller
 
             double a = endTablePosition.Item1;
             double b = endTablePosition.Item2;
-            double c = Math.Max(a, b);
-            Console.WriteLine(c);
-            //Environment.Exit(1);
+            double offset = Math.Max(a, b);
+            Console.WriteLine(offset);
+            if (offset == 0)
+            {
+                return;
+            }
+            Console.WriteLine("Resetting to horizontal position...");
 
             //Console.WriteLine(b);
 
             // distance divided by speed
             //double resetTimeInterval = c/0.15f;
-            int resetTimeInterval = (int)(c / 0.15f);
+            int resetTimeInterval = (int)(offset / 0.1f);
+            Console.Write(string.Format("resetTimeInterval: {0}", resetTimeInterval));
+            Console.WriteLine();
 
-            bool directionFlag = a <= 0;
+            bool directionFlag = a >= 0;
             SetSpeed(ref tableInstance, 0.15f);
             SetDirection(ref tableInstance, directionFlag);
             StartEngine(ref tableInstance);
@@ -283,7 +293,7 @@ namespace IEM_verticalizer_controller
             NormalizeHorizontalPosition(ref tableInstance, ref tablePosition);
 
             // Stop and reset engine
-            StopEngine(ref tableInstance);
+            // StopEngine(ref tableInstance);
             ResetEngine(ref tableInstance);
         }
 
@@ -295,19 +305,19 @@ namespace IEM_verticalizer_controller
             // Initiate connection with the engine
             InitiateConnection(ref tableInstance);
 
-            Console.WriteLine("Do you wish to start in manual mode? y/n");
-            string userInputMode = Console.ReadLine();
-            while (userInputMode != "n" && userInputMode != "y")
-            {
-                Console.WriteLine("Please answer with 'y' or 'n'");
-                userInputMode = Console.ReadLine();
-            }
+            //Console.WriteLine("Do you wish to start in manual mode? y/n");
+            //string userInputMode = Console.ReadLine();
+            //while (userInputMode != "n" && userInputMode != "y")
+            //{
+            //    Console.WriteLine("Please answer with 'y' or 'n'");
+            //    userInputMode = Console.ReadLine();
+            //}
 
-            if (userInputMode == "y")
-            {
-                ManualMode(ref tableInstance);
-                Environment.Exit(0);
-            }
+            //if (userInputMode == "y")
+            //{
+            //    ManualMode(ref tableInstance);
+            //    Environment.Exit(0);
+            //}
 
             // Create position instance of a table
             TablePosition tablePosition = new TablePosition();
