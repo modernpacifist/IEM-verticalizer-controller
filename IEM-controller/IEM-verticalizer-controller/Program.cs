@@ -232,14 +232,16 @@ namespace IEM_verticalizer_controller
 
             //Console.WriteLine(b);
 
+            float SAMPLESPEED = 0.1f;
+
             // distance divided by speed
             //double resetTimeInterval = c/0.15f;
-            int resetTimeInterval = (int)(offset / 0.1f);
+            int resetTimeInterval = (int)(offset / SAMPLESPEED);
             Console.Write(string.Format("resetTimeInterval: {0}", resetTimeInterval));
             Console.WriteLine();
 
             bool directionFlag = a >= 0;
-            SetSpeed(ref tableInstance, 0.15f);
+            SetSpeed(ref tableInstance, SAMPLESPEED);
             SetDirection(ref tableInstance, directionFlag);
             StartEngine(ref tableInstance);
 
