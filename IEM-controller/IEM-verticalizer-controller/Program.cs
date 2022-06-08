@@ -69,13 +69,13 @@ namespace IEM_verticalizer_controller
 
     internal class TableControl
     {
-        private readonly Table tableInstance;
+        private readonly Table _tableInstance;
         private readonly float _speed;
 
         // default constructor
         public TableControl(ref Table tableInstance, float speed)
         {
-            this.tableInstance = tableInstance;
+            this._tableInstance = tableInstance;
             this._speed = speed;
         }
 
@@ -88,22 +88,100 @@ namespace IEM_verticalizer_controller
             return (int)(requiredAngle / _speed);
         }
 
+        private void setDirection(bool direction)
+        {
+            bool directionResultFlag = _tableInstance.SetDirection(direction);
+            System.Threading.Thread.Sleep(100);
+            if (!directionResultFlag)
+            {
+                Console.WriteLine("Direction was not set");
+                Environment.Exit(1);
+            }
+
+            if (direction)
+            {
+                Console.WriteLine("Direction set to CLOCKWISE");
+            }
+            else
+            {
+                Console.WriteLine("Direction set to COUNTER-CLOCKWISE");
+            }
+            return;
+        }
+        private void setSpeed(float speedValue)
+        {
+            if (0.05f > speedValue || speedValue > 0.5f)
+            {
+                Console.WriteLine("Speed value must be in the interval of [0.05, 0.5]");
+                Environment.Exit(1);
+            }
+
+            bool speedFlag = _tableInstance.SetSpeed(speedValue);
+            System.Threading.Thread.Sleep(100);
+            if (!speedFlag)
+            {
+                Console.WriteLine("Speed was not set due to internal error");
+                return;
+            }
+            Console.WriteLine(String.Format("Speed was successfully set to: {0}", speedValue));
+            return;
+        }
+        private void startEngine()
+        {
+            bool flag = _tableInstance.Start();
+            System.Threading.Thread.Sleep(100);
+            if (!flag)
+            {
+                Console.WriteLine("Engine start failed");
+                Environment.Exit(1);
+            }
+            Console.WriteLine("Engine movement started");
+            return;
+        }
+        private void stopEngine()
+        {
+            // add try/except block to stop engine definitely
+            bool flag = _tableInstance.Stop();
+            System.Threading.Thread.Sleep(100);
+            if (!flag)
+            {
+                Console.WriteLine("ENGINE STOP FAILED");
+            }
+            Console.WriteLine("Engine is stopping...");
+            return;
+        }
+        private void resetEngine()
+        {
+            bool flag = _tableInstance.Reset();
+            System.Threading.Thread.Sleep(100);
+            if (!flag)
+            {
+                Console.WriteLine("Engine was reset");
+            }
+            return;
+        }
+
         // rotationFlag true - clockwise, false - counterclockwise
-        public void RotateEngine(bool rotationFlag, double degrees)
+        public void RotateEngine(bool directionFlag, double degrees)
         {
             int rotationIntervalSeconds = calculateRotationPeriod(degrees);
 
-            tableInstance.SetDirection(rotationFlag);
+            //tableInstance.SetDirection(directionFlag);
+            setDirection(directionFlag);
 
-            tableInstance.SetSpeed(_speed);
+            //_tableInstance.SetSpeed(_speed);
+            setSpeed(_speed);
 
-            tableInstance.Start();
+            //_tableInstance.Start();
+            startEngine();
 
             System.Threading.Thread.Sleep(rotationIntervalSeconds * 1000);
 
-            tableInstance.Stop();
+            stopEngine();
 
-            tableInstance.Reset();
+            //_tableInstance.Stop();
+
+            resetEngine();
         }
     }
 
