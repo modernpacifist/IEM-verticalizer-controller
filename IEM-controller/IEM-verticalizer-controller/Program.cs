@@ -43,39 +43,60 @@ namespace IEM_verticalizer_controller
         }
     }
 
-    // TODO:
-    internal class Engine : Table
+    public class TableAngle
     {
-        private float speed = 0.0f;
-        private bool directionFlag = true;
-        private int fullInterval = 10;
-        private int rotationInterval = 3;
-        //public float speed = 0.0f;
-        //public bool directionFlag = true;
-        //public int fullInterval = 10;
-        //public int rotationInterval = 3;
+        private double angleValue = 0.0;
+
+        public TableAngle()
+        {
+            angleValue = 0.0;
+        }
+
+        public void RotateClockwise(double value)
+        {
+            angleValue += value;
+        }
+        public void RotateCounterClockwise(double value)
+        {
+            angleValue -= value;
+        }
+
+        public double GetCurrentAngle()
+        {
+            return angleValue;
+        }
+    }
+
+    // TODO:
+    internal class TableControl
+    {
+        private readonly Table tableInstance;
+        private readonly float speed;
 
         // default constructor
-        public Engine(float speed, bool directionFlag, int fullInterval, int rotationInterval)
+        public TableControl(Table tableInstance, float speed)
         {
+            this.tableInstance = tableInstance;
             this.speed = speed;
-            this.directionFlag = directionFlag;
-            this.fullInterval = fullInterval;
-            this.rotationInterval = rotationInterval;
         }
 
-        public void PrintParameters()
+        // calculate required one-directional rotation period (milliseconds)
+        private uint calculateRotationPeriod(double requiredAngle)
+        //private double calculateRotationPeriod(double requiredAngle)
         {
-            Console.WriteLine(speed);
+            // w = requiredAngle / t
+            // requiredAngle = w * t
+            // t = requiredAngle / speed
+            return (uint)(requiredAngle / speed);
         }
 
-        void StartEngine()
+        // rotationFlag true - clockwise, counterclockwise
+        public void RotateEngine(bool rotationFlag, double degrees)
         {
-
-        }
-        void RotateEngine()
-        {
-
+            uint rotationPeriod = calculateRotationPeriod(degrees);
+            //double rotationPeriod = calculateRotationPeriod(degrees);
+            Console.Write(rotationPeriod);
+            //tableInstance.SetDirection();
         }
     }
 
@@ -309,31 +330,37 @@ namespace IEM_verticalizer_controller
 
         static void Main(string[] args)
         {
-            // Essensial instance for engine control
+            //// Essensial instance for engine control
+            //Table tableInstance = new Table();
+
+            //// Initiate connection with the engine
+            //InitiateConnection(ref tableInstance);
+
+            //Console.WriteLine("Do you wish to start in manual mode? y/n");
+            //string userInputMode = Console.ReadLine();
+            //while (userInputMode != "n" && userInputMode != "y")
+            //{
+            //    Console.WriteLine("Please answer with 'y' or 'n'");
+            //    userInputMode = Console.ReadLine();
+            //}
+
+            //if (userInputMode == "y")
+            //{
+            //    ManualMode(ref tableInstance);
+            //    Environment.Exit(0);
+            //}
+
+            //// Create position instance of a table
+            //TablePosition tablePosition = new TablePosition();
+            //AutomaticMode(ref tableInstance, ref tablePosition);
+
+            //Environment.Exit(0);
+
             Table tableInstance = new Table();
 
-            // Initiate connection with the engine
-            InitiateConnection(ref tableInstance);
+            TableControl tableControl = new TableControl(tableInstance, 0.5f);
 
-            Console.WriteLine("Do you wish to start in manual mode? y/n");
-            string userInputMode = Console.ReadLine();
-            while (userInputMode != "n" && userInputMode != "y")
-            {
-                Console.WriteLine("Please answer with 'y' or 'n'");
-                userInputMode = Console.ReadLine();
-            }
-
-            if (userInputMode == "y")
-            {
-                ManualMode(ref tableInstance);
-                Environment.Exit(0);
-            }
-
-            // Create position instance of a table
-            TablePosition tablePosition = new TablePosition();
-            AutomaticMode(ref tableInstance, ref tablePosition);
-
-            Environment.Exit(0);
+            tableControl.RotateEngine(true, 5);
         }
     }
 }
