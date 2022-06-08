@@ -1,69 +1,44 @@
 ﻿using System;
 using TableAPI;
 using System.Diagnostics;
-
+using System.Threading.Tasks;
 
 namespace IEM_verticalizer_controller
 {
     public class TablePosition
     {
-        private double tableAngleValue = 0.0;
+        private double tableOffset = 0.0;
 
         public TablePosition()
         {
-            tableAngleValue = 0.0;
+            tableOffset = 0.0;
         }
 
         // sample function, remove from prod
         public void PrintPosition()
         {
-            Console.WriteLine(string.Format("Current table position x: {0}", tableAngleValue));
+            Console.WriteLine(string.Format("Current table offset: {0}", tableOffset));
         }
 
         public void CalculatePosition(double someValue, bool flag)
         {
             if (flag)
             {
-                this.tableAngleValue -= someValue;
+                this.tableOffset -= someValue;
             }
             else
             {
-                this.tableAngleValue += someValue;
+                this.tableOffset += someValue;
             }
         }
 
         public double GetCurrentPosition()
         {
-            return tableAngleValue;
+            return tableOffset;
         }
     }
 
-    public class TableAngle
-    {
-        private double angleValue = 0.0;
-
-        public TableAngle()
-        {
-            angleValue = 0.0;
-        }
-
-        public void RotateClockwise(double value)
-        {
-            angleValue += value;
-        }
-
-        public void RotateCounterClockwise(double value)
-        {
-            angleValue -= value;
-        }
-
-        public double GetCurrentAngle()
-        {
-            return angleValue;
-        }
-    }
-
-    internal class TableControl
+    internal class TableControl : Table
     {
         // calculate required one-directional rotation period -> seconds
         public int calculateRotationPeriod(double requiredAngle, float speed)
@@ -74,10 +49,11 @@ namespace IEM_verticalizer_controller
 
     internal class Program
     {
-        static void EmergencyStop(ref Table tableInstance)
+        static void EmergencyStop(ref Table tableInstance, ref TablePosition tablePosition)
         {
             // Intercept Ctrl+C from the user input during execution and return table into horizontal position
             Console.Write("Emergency stop called\n");
+            NormalizeHorizontalPosition(ref tableInstance, ref tablePosition, 0.05f, 3000);
             StopEngine(ref tableInstance);
             ResetEngine(ref tableInstance);
             Environment.Exit(0);
@@ -235,6 +211,10 @@ namespace IEM_verticalizer_controller
         static void NormalizeHorizontalPosition(ref Table tableInstance, ref TablePosition tablePosition, float tableSpeed, int resetTimeInterval)
         {
             double endTablePosition = tablePosition.GetCurrentPosition();
+            if (endTablePosition == 0)
+            {
+                return;
+            }
             Console.WriteLine("Resetting to horizontal position...");
 
             // distance divided by speed
@@ -307,9 +287,15 @@ namespace IEM_verticalizer_controller
         {
             // Essensial instance for engine control
             Table tableInstance = new Table();
+            TablePosition tablePosition = new TablePosition();
 
             // Initiate connection with the engine
             InitiateConnection(ref tableInstance);
+
+            Console.CancelKeyPress += delegate
+            {
+                EmergencyStop(ref tableInstance, ref tablePosition);
+            };
 
             //Console.WriteLine("Do you wish to start in manual mode? y/n");
             //string userInputMode = Console.ReadLine();
@@ -333,7 +319,6 @@ namespace IEM_verticalizer_controller
                     ManualMode(ref tableInstance);
                     break;
                 case "a":
-                    TablePosition tablePosition = new TablePosition();
                     AutomaticMode(ref tableInstance, ref tablePosition);
                     break;
             }
