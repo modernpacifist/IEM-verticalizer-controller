@@ -56,6 +56,7 @@ namespace IEM_verticalizer_controller
         {
             angleValue += value;
         }
+
         public void RotateCounterClockwise(double value)
         {
             angleValue -= value;
@@ -70,7 +71,7 @@ namespace IEM_verticalizer_controller
     internal class TableControl
     {
         // calculate required one-directional rotation period -> seconds
-        private int calculateRotationPeriod(double requiredAngle, float speed)
+        public int calculateRotationPeriod(double requiredAngle, float speed)
         {
             return (int)(requiredAngle / speed);
         }
@@ -96,7 +97,7 @@ namespace IEM_verticalizer_controller
                 Console.WriteLine("Connection failed, check physical state");
                 Environment.Exit(1);
             }
-            Console.WriteLine("Connection was established");
+            Console.WriteLine("Connection established");
             return;
         }
 
@@ -189,6 +190,12 @@ namespace IEM_verticalizer_controller
             return;
         }
 
+        static int CalculateRotationPeriod(double requiredAngle, float speed)
+        {
+            //return (int)(requiredAngle / speed);
+            return (int)(requiredAngle / speed);
+        }
+
         static void ManualMode(ref Table tableInstance)
         {
             Console.Write("MANUAL mode engaged...\n");
@@ -200,8 +207,15 @@ namespace IEM_verticalizer_controller
                 Console.Write("Input direction to clockwise true - from me, false - to me: ");
                 bool directionFlag = bool.Parse(Console.ReadLine());
 
+                //Console.Write("Input time interval (in seconds): ");
+                //int seconds = int.Parse(Console.ReadLine());
+                //Console.Write("Input tilt angle (degrees): ");
                 Console.Write("Input time interval (in seconds): ");
-                int seconds = int.Parse(Console.ReadLine());
+                //int rotationInterval = CalculateRotationPeriod(int.Parse(Console.ReadLine()), speed);
+                int rotationInterval = int.Parse(Console.ReadLine());
+                Console.Write("Rotation interval: ");
+                Console.WriteLine(rotationInterval);
+
                 // Set speed of the rotation of the table
                 SetSpeed(ref tableInstance, speed);
                 // Setting direction to clockwise true - from me, false - to me
@@ -209,7 +223,7 @@ namespace IEM_verticalizer_controller
 
                 // Start engine clockwise
                 StartEngine(ref tableInstance);
-                System.Threading.Thread.Sleep(seconds*1000);
+                System.Threading.Thread.Sleep(rotationInterval*1000);
                 StopEngine(ref tableInstance);
 
                 Console.Write("Continue? y/n\n");
@@ -275,23 +289,31 @@ namespace IEM_verticalizer_controller
 
             // Set speed of the rotation of the table
             SetSpeed(ref tableInstance, tableSpeed);
+
+            SetDirection(ref tableInstance, rotationDirection);
+            StartEngine(ref tableInstance);
+            System.Threading.Thread.Sleep(timeInterval);
+            StopEngine(ref tableInstance);
+            timeInterval *= 2;
+            tablePosition.CalculatePosition(timeInterval * tableSpeed, rotationDirection);
+            tablePosition.PrintPosition();
+
             while (Timer.Elapsed.TotalSeconds < totalTimeInterval)
             {
+                // Invert rotation direction
+                rotationDirection = !rotationDirection;
+
                 // Setting direction to clockwise
                 SetDirection(ref tableInstance, rotationDirection);
 
                 // Start engine
                 StartEngine(ref tableInstance);
                 System.Threading.Thread.Sleep(timeInterval);
-                //timeInterval *= 2;
+                // Stopping engine
+                StopEngine(ref tableInstance);
                 tablePosition.CalculatePosition(timeInterval * tableSpeed, rotationDirection);
                 tablePosition.PrintPosition();
 
-                // Stopping engine
-                StopEngine(ref tableInstance);
-
-                // Invert rotation direction
-                rotationDirection = !rotationDirection;
                 Console.WriteLine();
             }
             Timer.Stop();
@@ -312,23 +334,32 @@ namespace IEM_verticalizer_controller
             // Initiate connection with the engine
             InitiateConnection(ref tableInstance);
 
-            Console.WriteLine("Do you wish to start in manual mode? y/n");
+            //Console.WriteLine("Do you wish to start in manual mode? y/n");
+            //string userInputMode = Console.ReadLine();
+            //while (userInputMode != "n" && userInputMode != "y")
+            //{
+            //    Console.WriteLine("Please answer with 'y' or 'n'");
+            //    userInputMode = Console.ReadLine();
+            //}
+
+            Console.WriteLine("What mode do you wish to engage? manual(m)/auto(a)");
             string userInputMode = Console.ReadLine();
-            while (userInputMode != "n" && userInputMode != "y")
+            while (userInputMode != "m" && userInputMode != "a")
             {
-                Console.WriteLine("Please answer with 'y' or 'n'");
+                Console.WriteLine("Please answer with 'm' or 'a'");
                 userInputMode = Console.ReadLine();
             }
 
-            if (userInputMode == "y")
+            switch(userInputMode)
             {
-                ManualMode(ref tableInstance);
-                Environment.Exit(0);
+                case "m":
+                    ManualMode(ref tableInstance);
+                    break;
+                case "a":
+                    TablePosition tablePosition = new TablePosition();
+                    AutomaticMode(ref tableInstance, ref tablePosition);
+                    break;
             }
-
-            // Create position instance of a table
-            TablePosition tablePosition = new TablePosition();
-            AutomaticMode(ref tableInstance, ref tablePosition);
 
             Environment.Exit(0);
         }
