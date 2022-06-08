@@ -7,39 +7,34 @@ namespace IEM_verticalizer_controller
 {
     public class TablePosition
     {
-        private double x = 0.0;
-        private double y = 0.0;
+        private double tableAngleValue = 0.0;
 
-        // default constructor
         public TablePosition()
         {
-            x = 0.0;
-            y = 0.0;
+            tableAngleValue = 0.0;
         }
 
         // sample function, remove from prod
         public void PrintPosition()
         {
-            Console.WriteLine(string.Format("Current table position x: {0}, y: {1}", x, y));
+            Console.WriteLine(string.Format("Current table position x: {0}", tableAngleValue));
         }
 
         public void CalculatePosition(double someValue, bool flag)
         {
             if (flag)
             {
-                this.x -= someValue;
-                this.y += someValue;
+                this.tableAngleValue -= someValue;
             }
             else
             {
-                this.x += someValue;
-                this.y -= someValue;
+                this.tableAngleValue += someValue;
             }
         }
 
-        public Tuple<double, double> GetCurrentPosition()
+        public double GetCurrentPosition()
         {
-            return new Tuple<double, double> ( this.x, this.y );
+            return tableAngleValue;
         }
     }
 
@@ -104,7 +99,7 @@ namespace IEM_verticalizer_controller
         static void SetDirection(ref Table tableInstance, bool direction)
         {
             bool directionFlag = tableInstance.SetDirection(direction);
-            System.Threading.Thread.Sleep(100);
+            //System.Threading.Thread.Sleep(100);
             if (!directionFlag)
             {
                 Console.WriteLine("Direction was not set");
@@ -131,7 +126,7 @@ namespace IEM_verticalizer_controller
             }
 
             bool speedFlag = tableInstance.SetSpeed(speedValue);
-            System.Threading.Thread.Sleep(100);
+            //System.Threading.Thread.Sleep(100);
             if (!speedFlag)
             {
                 Console.WriteLine("Speed was not set due to internal error");
@@ -144,7 +139,7 @@ namespace IEM_verticalizer_controller
         static void StartEngine(ref Table tableInstsance)
         {
             bool flag = tableInstsance.Start();
-            System.Threading.Thread.Sleep(100);
+            //System.Threading.Thread.Sleep(100);
             if (!flag)
             {
                 Console.WriteLine("Engine start failed");
@@ -158,7 +153,7 @@ namespace IEM_verticalizer_controller
         {
             // add try/except block to stop engine definitely
             bool flag = tableInstsance.Stop();
-            System.Threading.Thread.Sleep(100);
+            //System.Threading.Thread.Sleep(100);
             if (!flag)
             {
                 Console.WriteLine("ENGINE STOP FAILED");
@@ -170,7 +165,7 @@ namespace IEM_verticalizer_controller
         static void ResetEngine(ref Table tableInstsance)
         {
             bool flag = tableInstsance.Reset();
-            System.Threading.Thread.Sleep(100);
+            //System.Threading.Thread.Sleep(100);
             if (!flag)
             {
                 Console.WriteLine("Engine was reset");
@@ -207,11 +202,7 @@ namespace IEM_verticalizer_controller
                 Console.Write("Input direction to clockwise true - from me, false - to me: ");
                 bool directionFlag = bool.Parse(Console.ReadLine());
 
-                //Console.Write("Input time interval (in seconds): ");
-                //int seconds = int.Parse(Console.ReadLine());
-                //Console.Write("Input tilt angle (degrees): ");
                 Console.Write("Input time interval (in seconds): ");
-                //int rotationInterval = CalculateRotationPeriod(int.Parse(Console.ReadLine()), speed);
                 int rotationInterval = int.Parse(Console.ReadLine());
                 Console.Write("Rotation interval: ");
                 Console.WriteLine(rotationInterval);
@@ -241,30 +232,16 @@ namespace IEM_verticalizer_controller
         }
 
         // this function can be simplified without interval calculations
-        static void NormalizeHorizontalPosition(ref Table tableInstance, ref TablePosition tablePosition, float tableSpeed)
+        static void NormalizeHorizontalPosition(ref Table tableInstance, ref TablePosition tablePosition, float tableSpeed, int resetTimeInterval)
         {
-            Tuple<double, double> endTablePosition = tablePosition.GetCurrentPosition();
-
-            double a = endTablePosition.Item1;
-            double b = endTablePosition.Item2;
-            // TODO: write a function that will find max from whole tuple
-            double positionOffset = Math.Max(a, b);
-            Console.WriteLine(positionOffset);
-            if (positionOffset == 0)
-            {
-                return;
-            }
+            double endTablePosition = tablePosition.GetCurrentPosition();
             Console.WriteLine("Resetting to horizontal position...");
 
-            //Console.WriteLine(b);
-
             // distance divided by speed
-            //double resetTimeInterval = c/0.15f;
-            int resetTimeInterval = (int)(positionOffset / tableSpeed);
             Console.Write(string.Format("resetTimeInterval: {0}\n", resetTimeInterval));
 
             // do something with this "directionFlag"
-            bool directionFlag = a > 0;
+            bool directionFlag = endTablePosition > 0;
             SetSpeed(ref tableInstance, tableSpeed);
             SetDirection(ref tableInstance, directionFlag);
             StartEngine(ref tableInstance);
@@ -294,9 +271,9 @@ namespace IEM_verticalizer_controller
             StartEngine(ref tableInstance);
             System.Threading.Thread.Sleep(timeInterval);
             StopEngine(ref tableInstance);
-            timeInterval *= 2;
             tablePosition.CalculatePosition(timeInterval * tableSpeed, rotationDirection);
             tablePosition.PrintPosition();
+            timeInterval *= 2;
 
             while (Timer.Elapsed.TotalSeconds < totalTimeInterval)
             {
@@ -319,7 +296,7 @@ namespace IEM_verticalizer_controller
             Timer.Stop();
             Console.WriteLine("Main timer loop exceeded");
             // TODO: here must be a chunk of code that resets engine in [0, 0] coordinates
-            NormalizeHorizontalPosition(ref tableInstance, ref tablePosition, tableSpeed);
+            NormalizeHorizontalPosition(ref tableInstance, ref tablePosition, tableSpeed, timeInterval/2);
 
             // Stop and reset engine
             StopEngine(ref tableInstance);
