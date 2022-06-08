@@ -99,7 +99,7 @@ namespace IEM_verticalizer_controller
         static void SetDirection(ref Table tableInstance, bool direction)
         {
             bool directionFlag = tableInstance.SetDirection(direction);
-            //System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(100);
             if (!directionFlag)
             {
                 Console.WriteLine("Direction was not set");
@@ -126,7 +126,7 @@ namespace IEM_verticalizer_controller
             }
 
             bool speedFlag = tableInstance.SetSpeed(speedValue);
-            //System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(100);
             if (!speedFlag)
             {
                 Console.WriteLine("Speed was not set due to internal error");
@@ -139,7 +139,7 @@ namespace IEM_verticalizer_controller
         static void StartEngine(ref Table tableInstsance)
         {
             bool flag = tableInstsance.Start();
-            //System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(100);
             if (!flag)
             {
                 Console.WriteLine("Engine start failed");
@@ -153,7 +153,7 @@ namespace IEM_verticalizer_controller
         {
             // add try/except block to stop engine definitely
             bool flag = tableInstsance.Stop();
-            //System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(100);
             if (!flag)
             {
                 Console.WriteLine("ENGINE STOP FAILED");
@@ -165,7 +165,7 @@ namespace IEM_verticalizer_controller
         static void ResetEngine(ref Table tableInstsance)
         {
             bool flag = tableInstsance.Reset();
-            //System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(100);
             if (!flag)
             {
                 Console.WriteLine("Engine was reset");
