@@ -54,8 +54,6 @@ namespace IEM_verticalizer_controller
             // Intercept Ctrl+C from the user input during execution and return table into horizontal position
             Console.Write("Emergency stop called\n");
             NormalizeHorizontalPosition(ref tableInstance, ref tableConfig);
-            StopEngine(ref tableInstance);
-            ResetEngine(ref tableInstance);
             Environment.Exit(0);
             return;
         }
@@ -166,35 +164,27 @@ namespace IEM_verticalizer_controller
             return (int)(requiredAngle / speed);
         }
 
-        static void ManualMode(ref Table tableInstance)
+        static void ManualMode(ref Table tableInstance, ref TableMovementConfig tableMoveConfig)
         {
             Console.Write("MANUAL mode engaged...\n");
             while (true)
             {
-                Console.Write("Input speed: ");
-                float speed = float.Parse(Console.ReadLine());
-
                 Console.Write("Input direction to clockwise true - from me, false - to me: ");
                 bool directionFlag = bool.Parse(Console.ReadLine());
 
-                Console.Write("Input time interval (in seconds): ");
-                int rotationInterval = int.Parse(Console.ReadLine());
-                Console.Write("Rotation interval: ");
-                Console.WriteLine(rotationInterval);
-
                 // Set speed of the rotation of the table
-                SetSpeed(ref tableInstance, speed);
+                SetSpeed(ref tableInstance, tableMoveConfig.tableSpeed);
                 // Setting direction to clockwise true - from me, false - to me
                 SetDirection(ref tableInstance, directionFlag);
 
                 // Start engine clockwise
                 StartEngine(ref tableInstance);
-                System.Threading.Thread.Sleep(rotationInterval*1000);
+                System.Threading.Thread.Sleep(tableMoveConfig.unaryMoveInterval);
                 StopEngine(ref tableInstance);
 
                 Console.Write("Continue? y/n\n");
-                string exitFlag = Console.ReadLine();
-                if (exitFlag == "y")
+                string continueFlag = Console.ReadLine();
+                if (continueFlag == "y")
                 {
                     continue;
                 }
@@ -206,7 +196,6 @@ namespace IEM_verticalizer_controller
             ResetEngine(ref tableInstance);
         }
 
-        // this function can be simplified without interval calculations
         static void NormalizeHorizontalPosition(ref Table tableInstance, ref TableMovementConfig tableConfig)
         {
             double currentTableOffset = tableConfig.tableOffset;
@@ -216,27 +205,21 @@ namespace IEM_verticalizer_controller
             }
             Console.WriteLine("Resetting to horizontal position...");
 
-            // distance divided by speed
-            //Console.Write(string.Format("resetTimeInterval: {0}\n", resetTimeInterval));
             Console.Write(string.Format("resetTimeInterval: {0}\n", tableConfig.unaryMoveInterval));
 
-            // do something with this "directionFlag"
+            // determine which direction to turn to get into default position
             bool directionFlag = currentTableOffset > 0;
-            //SetSpeed(ref tableInstance, tableSpeed);
             SetSpeed(ref tableInstance, tableConfig.tableSpeed);
             SetDirection(ref tableInstance, directionFlag);
             StartEngine(ref tableInstance);
-
-            //System.Threading.Thread.Sleep(resetTimeInterval);
             System.Threading.Thread.Sleep(tableConfig.unaryMoveInterval);
+            StopEngine(ref tableInstance);
+            ResetEngine(ref tableInstance);
         }
 
-        //static void AutomaticMode(ref Table tableInstance, ref TableConfig tableConfig)
         static void AutomaticMode(ref Table tableInstance, ref TableMovementConfig moveConfig)
         {
             Console.WriteLine("AUTOMATIC mode engaged...");
-
-            //TableConfig tableConfig = new TableConfig(tableSpeed, timeInterval);
 
             bool rotationDirection = true;
             Stopwatch Timer = new Stopwatch();
@@ -251,9 +234,8 @@ namespace IEM_verticalizer_controller
             StopEngine(ref tableInstance);
             moveConfig.CalculatePosition(moveConfig.unaryMoveInterval * moveConfig.tableSpeed, rotationDirection);
             moveConfig.PrintPosition();
-            //timeInterval *= 2;
 
-            int timeInterval = moveConfig.unaryMoveInterval * 2;
+            int doubledTimeInterval = moveConfig.unaryMoveInterval * 2;
             while (Timer.Elapsed.TotalSeconds < moveConfig.totalTimeInterval)
             {
                 // Invert rotation direction
@@ -264,32 +246,38 @@ namespace IEM_verticalizer_controller
 
                 // Start engine
                 StartEngine(ref tableInstance);
-                System.Threading.Thread.Sleep(timeInterval);
+                System.Threading.Thread.Sleep(doubledTimeInterval);
                 // Stopping engine
                 StopEngine(ref tableInstance);
-                moveConfig.CalculatePosition(timeInterval * moveConfig.tableSpeed, rotationDirection);
+                moveConfig.CalculatePosition(doubledTimeInterval * moveConfig.tableSpeed, rotationDirection);
                 moveConfig.PrintPosition();
 
                 Console.WriteLine();
             }
             Timer.Stop();
             Console.WriteLine("Main timer loop exceeded");
-            // TODO: here must be a chunk of code that resets engine in [0, 0] coordinates
             NormalizeHorizontalPosition(ref tableInstance, ref moveConfig);
 
             // Stop and reset engine
-            StopEngine(ref tableInstance);
-            ResetEngine(ref tableInstance);
+            //StopEngine(ref tableInstance);
+            //ResetEngine(ref tableInstance);
         }
 
         static void Main(string[] args)
         {
             // Essensial instance for engine control
             Table tableInstance = new Table();
-            //Table tableInstance = new TableControl();
 
             // Initiate connection with the engine
             InitiateConnection(ref tableInstance);
+
+            Console.WriteLine("What mode do you wish to engage? manual(m)/auto(a)");
+            string userInputMode = Console.ReadLine();
+            while (userInputMode != "m" && userInputMode != "a")
+            {
+                Console.WriteLine("Please answer with 'm' or 'a'");
+                userInputMode = Console.ReadLine();
+            }
 
             Console.Write("Input speed: ");
             float tableSpeed = float.Parse(Console.ReadLine());
@@ -305,18 +293,10 @@ namespace IEM_verticalizer_controller
                 EmergencyStop(ref tableInstance, ref movementConfig);
             };
 
-            Console.WriteLine("What mode do you wish to engage? manual(m)/auto(a)");
-            string userInputMode = Console.ReadLine();
-            while (userInputMode != "m" && userInputMode != "a")
-            {
-                Console.WriteLine("Please answer with 'm' or 'a'");
-                userInputMode = Console.ReadLine();
-            }
-
             switch(userInputMode)
             {
                 case "m":
-                    ManualMode(ref tableInstance);
+                    ManualMode(ref tableInstance, ref movementConfig);
                     break;
                 case "a":
                     AutomaticMode(ref tableInstance, ref movementConfig);
