@@ -67,36 +67,43 @@ namespace IEM_verticalizer_controller
         }
     }
 
-    // TODO:
     internal class TableControl
     {
         private readonly Table tableInstance;
-        private readonly float speed;
+        private readonly float _speed;
 
         // default constructor
-        public TableControl(Table tableInstance, float speed)
+        public TableControl(ref Table tableInstance, float speed)
         {
             this.tableInstance = tableInstance;
-            this.speed = speed;
+            this._speed = speed;
         }
 
-        // calculate required one-directional rotation period (milliseconds)
-        private uint calculateRotationPeriod(double requiredAngle)
-        //private double calculateRotationPeriod(double requiredAngle)
+        // calculate required one-directional rotation period -> seconds
+        private int calculateRotationPeriod(double requiredAngle)
         {
             // w = requiredAngle / t
             // requiredAngle = w * t
             // t = requiredAngle / speed
-            return (uint)(requiredAngle / speed);
+            return (int)(requiredAngle / _speed);
         }
 
-        // rotationFlag true - clockwise, counterclockwise
+        // rotationFlag true - clockwise, false - counterclockwise
         public void RotateEngine(bool rotationFlag, double degrees)
         {
-            uint rotationPeriod = calculateRotationPeriod(degrees);
-            //double rotationPeriod = calculateRotationPeriod(degrees);
-            Console.Write(rotationPeriod);
-            //tableInstance.SetDirection();
+            int rotationIntervalSeconds = calculateRotationPeriod(degrees);
+
+            tableInstance.SetDirection(rotationFlag);
+
+            tableInstance.SetSpeed(_speed);
+
+            tableInstance.Start();
+
+            System.Threading.Thread.Sleep(rotationIntervalSeconds * 1000);
+
+            tableInstance.Stop();
+
+            tableInstance.Reset();
         }
     }
 
@@ -358,7 +365,9 @@ namespace IEM_verticalizer_controller
 
             Table tableInstance = new Table();
 
-            TableControl tableControl = new TableControl(tableInstance, 0.5f);
+            InitiateConnection(ref tableInstance);
+
+            TableControl tableControl = new TableControl(ref tableInstance, 0.5f);
 
             tableControl.RotateEngine(true, 5);
         }
