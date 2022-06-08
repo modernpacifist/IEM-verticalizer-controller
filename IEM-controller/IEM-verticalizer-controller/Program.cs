@@ -69,13 +69,16 @@ namespace IEM_verticalizer_controller
 
     internal class TableControl
     {
-        private readonly Table _tableInstance;
+        //private readonly Table _tableInstance;
+        //private readonly Table _tableInstance;
+        Table _tableInstance = new Table();
         private readonly float _speed;
 
         // default constructor
-        public TableControl(ref Table tableInstance, float speed)
+        //public TableControl(Table tableInstance, float speed)
+        public TableControl(float speed)
         {
-            this._tableInstance = tableInstance;
+            //this._tableInstance = tableInstance;
             this._speed = speed;
         }
 
@@ -88,9 +91,20 @@ namespace IEM_verticalizer_controller
             return (int)(requiredAngle / _speed);
         }
 
+        private void initiateConnection()
+        {
+            if (!this._tableInstance.Connect())
+            {
+                Console.WriteLine("Connection failed, check physical state");
+                Environment.Exit(1);
+            }
+            Console.WriteLine("Connection was established");
+            return;
+        }
+
         private void setDirection(bool direction)
         {
-            bool directionResultFlag = _tableInstance.SetDirection(direction);
+            bool directionResultFlag = this._tableInstance.SetDirection(direction);
             System.Threading.Thread.Sleep(100);
             if (!directionResultFlag)
             {
@@ -108,6 +122,7 @@ namespace IEM_verticalizer_controller
             }
             return;
         }
+
         private void setSpeed(float speedValue)
         {
             if (0.05f > speedValue || speedValue > 0.5f)
@@ -116,7 +131,7 @@ namespace IEM_verticalizer_controller
                 Environment.Exit(1);
             }
 
-            bool speedFlag = _tableInstance.SetSpeed(speedValue);
+            bool speedFlag = this._tableInstance.SetSpeed(speedValue);
             System.Threading.Thread.Sleep(100);
             if (!speedFlag)
             {
@@ -126,9 +141,10 @@ namespace IEM_verticalizer_controller
             Console.WriteLine(String.Format("Speed was successfully set to: {0}", speedValue));
             return;
         }
+
         private void startEngine()
         {
-            bool flag = _tableInstance.Start();
+            bool flag = this._tableInstance.Start();
             System.Threading.Thread.Sleep(100);
             if (!flag)
             {
@@ -138,10 +154,11 @@ namespace IEM_verticalizer_controller
             Console.WriteLine("Engine movement started");
             return;
         }
+
         private void stopEngine()
         {
             // add try/except block to stop engine definitely
-            bool flag = _tableInstance.Stop();
+            bool flag = this._tableInstance.Stop();
             System.Threading.Thread.Sleep(100);
             if (!flag)
             {
@@ -150,15 +167,23 @@ namespace IEM_verticalizer_controller
             Console.WriteLine("Engine is stopping...");
             return;
         }
-        private void resetEngine()
+
+        //private void resetEngine()
+        //{
+        //    bool flag = _tableInstance.Reset();
+        //    System.Threading.Thread.Sleep(100);
+        //    if (!flag)
+        //    {
+        //        Console.WriteLine("Engine was reset");
+        //    }
+        //    return;
+        //}
+
+        public void SetupEngineParameters()
         {
-            bool flag = _tableInstance.Reset();
-            System.Threading.Thread.Sleep(100);
-            if (!flag)
-            {
-                Console.WriteLine("Engine was reset");
-            }
-            return;
+            //_tableInstance.SetSpeed(_speed);
+            initiateConnection();
+            setSpeed(_speed);
         }
 
         // rotationFlag true - clockwise, false - counterclockwise
@@ -166,22 +191,13 @@ namespace IEM_verticalizer_controller
         {
             int rotationIntervalSeconds = calculateRotationPeriod(degrees);
 
-            //tableInstance.SetDirection(directionFlag);
             setDirection(directionFlag);
 
-            //_tableInstance.SetSpeed(_speed);
-            setSpeed(_speed);
-
-            //_tableInstance.Start();
             startEngine();
 
             System.Threading.Thread.Sleep(rotationIntervalSeconds * 1000);
 
             stopEngine();
-
-            //_tableInstance.Stop();
-
-            resetEngine();
         }
     }
 
@@ -443,11 +459,17 @@ namespace IEM_verticalizer_controller
 
             Table tableInstance = new Table();
 
-            InitiateConnection(ref tableInstance);
+            //InitiateConnection(ref tableInstance);
+            float sampleAngleSpeed = 0.5f;
+            //TableControl tableControl = new TableControl(tableInstance, sampleAngleSpeed);
+            TableControl tableControl = new TableControl(sampleAngleSpeed);
 
-            TableControl tableControl = new TableControl(ref tableInstance, 0.5f);
+            tableControl.SetupEngineParameters();
 
-            tableControl.RotateEngine(true, 5);
+            int sampleAngle = 2;
+            tableControl.RotateEngine(true, sampleAngle);
+
+            ResetEngine(ref tableInstance);
         }
     }
 }
