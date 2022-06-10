@@ -24,7 +24,20 @@ namespace IEM_verticalizer_controller
             this.totalMoveTime = totalTimeInterval;
         }
 
+        //// this must be calculated by getting max offset value
+        //public void LegalAngleCheck()
+        //{
+        //    // dividing by 1000 - calculates through seconds
+        //    double maxAngle = this.halfInterval * this.rotationSpeed / 1000;
+        //    if (maxAngle > 15)
+        //    {
+        //        Console.WriteLine("Max angle value exceeded");
+        //        Environment.Exit(1);
+        //    }
+        //    return;
+        //}
         // this must be calculated by getting max offset value
+
         public void LegalAngleCheck()
         {
             // dividing by 1000 - calculates through seconds
@@ -38,7 +51,7 @@ namespace IEM_verticalizer_controller
         }
 
         // sample function, remove from prod
-        public void PrintPosition()
+        public void PrintCurrentOffset()
         {
             Console.WriteLine(string.Format("Current table offset: {0}", tableOffset));
         }
@@ -187,6 +200,9 @@ namespace IEM_verticalizer_controller
                 Console.Write("Input direction to clockwise true - from me, false - to me: ");
                 bool userDirection = bool.Parse(Console.ReadLine());
 
+                Console.Write("Input unary rotation interval in seconds: ");
+                int userUnaryInterval = int.Parse(Console.ReadLine()) * 1000;
+
                 // Set speed of the rotation of the table
                 SetSpeed(ref tableInstance, tableMoveConfig.rotationSpeed);
                 // Setting direction to clockwise true - from me, false - to me
@@ -195,10 +211,10 @@ namespace IEM_verticalizer_controller
 
                 // Start engine clockwise
                 StartEngine(ref tableInstance);
-                System.Threading.Thread.Sleep(tableMoveConfig.halfInterval);
+                System.Threading.Thread.Sleep(userUnaryInterval);
                 StopEngine(ref tableInstance);
-                tableMoveConfig.CalculatePosition(tableMoveConfig.halfInterval);
-                tableMoveConfig.PrintPosition();
+                tableMoveConfig.CalculatePosition(userUnaryInterval);
+                tableMoveConfig.PrintCurrentOffset();
 
                 Console.Write("Continue? y/n: ");
                 string continueFlag = Console.ReadLine();
@@ -256,7 +272,7 @@ namespace IEM_verticalizer_controller
             System.Threading.Thread.Sleep(tableMoveConfig.halfInterval);
             StopEngine(ref tableInstance);
             tableMoveConfig.CalculatePosition(tableMoveConfig.halfInterval);
-            tableMoveConfig.PrintPosition();
+            tableMoveConfig.PrintCurrentOffset();
 
             while (Timer.Elapsed.TotalSeconds < tableMoveConfig.totalMoveTime)
             {
@@ -273,7 +289,7 @@ namespace IEM_verticalizer_controller
                 // Stopping engine
                 StopEngine(ref tableInstance);
                 tableMoveConfig.CalculatePosition(tableMoveConfig.fullInterval);
-                tableMoveConfig.PrintPosition();
+                tableMoveConfig.PrintCurrentOffset();
 
                 Console.WriteLine();
             }
