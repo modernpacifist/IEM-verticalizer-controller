@@ -46,7 +46,7 @@ namespace IEM_verticalizer_controller
 
         public void PrintCurrentOffset()
         {
-            Console.WriteLine(string.Format("Current table offset: {0}\n", tableOffset));
+            Console.WriteLine(string.Format("Current table offset: {0}\n", this.tableOffset));
         }
 
         public void ReverseDirection()
@@ -54,19 +54,19 @@ namespace IEM_verticalizer_controller
             this.directionFlag = !this.directionFlag;
         }
 
-        public void CalculatePosition(double someValue)
+        public void CalculatePosition(double timeValue)
         {
             if (this.directionFlag)
             {
-                this.tableOffset -= (int)(someValue * this.rotationSpeed);
+                this.tableOffset -= (int)(timeValue * this.rotationSpeed);
             }
             else
             {
-                this.tableOffset += (int)(someValue * this.rotationSpeed);
+                this.tableOffset += (int)(timeValue * this.rotationSpeed);
             }
         }
     }
-    
+
     internal class EngineControl
     {
         static public void InitiateConnection(ref Table tableInstance)
@@ -92,6 +92,7 @@ namespace IEM_verticalizer_controller
     {
         static void EmergencyStop(ref Table tableInstance, ref TableMovementConfig tableMoveConfig)
         {
+            StopEngine(ref tableInstance);
             Console.Write("Emergency stop called\n");
             NormalizeHorizontalPosition(ref tableInstance, ref tableMoveConfig);
             Environment.Exit(0);
@@ -158,7 +159,7 @@ namespace IEM_verticalizer_controller
         {
             // add try/except block to stop engine definitely
             bool flag = tableInstsance.Stop();
-            System.Threading.Thread.Sleep(500);
+            System.Threading.Thread.Sleep(400);
             if (!flag)
             {
                 Console.WriteLine("ENGINE STOP FAILED");
@@ -231,7 +232,7 @@ namespace IEM_verticalizer_controller
             }
             Console.WriteLine("Resetting to horizontal position...");
             // resetTimeInterval is based on the offset of the table
-            int resetTimeInterval = (int)(Math.Abs(tableMoveConfig.tableOffset) / tableMoveConfig.rotationSpeed);
+            int resetTimeInterval = (int)(Math.Abs(currentTableOffset) / tableMoveConfig.rotationSpeed);
             Console.Write(string.Format("resetTimeInterval: {0}\n", resetTimeInterval));
 
             // determine which direction to turn to get into default position
@@ -295,6 +296,8 @@ namespace IEM_verticalizer_controller
                 Console.WriteLine("Please answer with 'm' or 'a'");
                 userInputMode = Console.ReadLine();
             }
+
+            // max offset is 2500
 
             Console.Write("Input speed, available values are [0.05 - 0.5]: ");
             float tableSpeed = float.Parse(Console.ReadLine());
