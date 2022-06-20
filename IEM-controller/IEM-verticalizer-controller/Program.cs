@@ -10,7 +10,8 @@ namespace IEM_verticalizer_controller
         // these must not be accessible
         public double tableOffset = 0.0;
         public readonly float rotationSpeed = 0.0f;
-        public readonly int totalMoveTime = 0;
+        // totalTimeInterval value is in milliseconds
+        public int totalTimeInterval = 0;
         public readonly int halfInterval = 0;
         public readonly int fullInterval = 0;
         public bool directionFlag = true;
@@ -21,7 +22,13 @@ namespace IEM_verticalizer_controller
             // converting into milliseconds
             this.halfInterval = halfInterval * 1000;
             this.fullInterval = halfInterval * 1000 * 2;
-            this.totalMoveTime = totalTimeInterval;
+            //this.totalTimeInterval = totalTimeInterval;
+            this.totalTimeInterval = totalTimeInterval * 1000;
+        }
+
+        public void ExpandTotalTimeInterval(int millisecondsToAdd)
+        {
+            this.totalTimeInterval += millisecondsToAdd;
         }
 
         public void LegalOffsetCheck()
@@ -91,24 +98,11 @@ namespace IEM_verticalizer_controller
             return;
         }
 
-        // Terminate execution of a program with exit code if connection fails
-        static void InitiateConnection(ref Table tableInstance)
-        {
-            bool successFlag = tableInstance.Connect();
-            System.Threading.Thread.Sleep(100);
-            if (!successFlag)
-            {
-                Console.WriteLine("Connection failed, check physical state");
-                Environment.Exit(1);
-            }
-            Console.WriteLine("Connection established");
-            return;
-        }
-
         static void SetDirection(ref Table tableInstance, bool direction)
         {
             bool directionFlag = tableInstance.SetDirection(direction);
-            System.Threading.Thread.Sleep(100);
+            //System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(250);
             if (!directionFlag)
             {
                 Console.WriteLine("Direction was not set");
@@ -135,7 +129,8 @@ namespace IEM_verticalizer_controller
             }
 
             bool speedFlag = tableInstance.SetSpeed(speedValue);
-            System.Threading.Thread.Sleep(100);
+            //System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(250);
             if (!speedFlag)
             {
                 Console.WriteLine("Speed was not set due to internal error");
@@ -148,7 +143,8 @@ namespace IEM_verticalizer_controller
         static void StartEngine(ref Table tableInstsance)
         {
             bool flag = tableInstsance.Start();
-            System.Threading.Thread.Sleep(100);
+            //System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(250);
             if (!flag)
             {
                 Console.WriteLine("Engine start failed");
@@ -162,7 +158,7 @@ namespace IEM_verticalizer_controller
         {
             // add try/except block to stop engine definitely
             bool flag = tableInstsance.Stop();
-            System.Threading.Thread.Sleep(250);
+            System.Threading.Thread.Sleep(500);
             if (!flag)
             {
                 Console.WriteLine("ENGINE STOP FAILED");
@@ -242,9 +238,8 @@ namespace IEM_verticalizer_controller
             bool directionFlag = currentTableOffset > 0;
             SetDirection(ref tableInstance, directionFlag);
             StartEngine(ref tableInstance);
-            System.Threading.Thread.Sleep(resetTimeInterval);
+            System.Threading.Thread.Sleep(resetTimeInterval + 500);
             StopEngine(ref tableInstance);
-            ResetEngine(ref tableInstance);
         }
 
         static void AutomaticMode(ref Table tableInstance, ref TableMovementConfig tableMoveConfig)
@@ -264,7 +259,8 @@ namespace IEM_verticalizer_controller
             tableMoveConfig.CalculatePosition(tableMoveConfig.halfInterval);
             tableMoveConfig.PrintCurrentOffset();
 
-            while (Timer.Elapsed.TotalSeconds < tableMoveConfig.totalMoveTime)
+            //while (Timer.Elapsed.TotalSeconds < tableMoveConfig.totalTimeInterval)
+            while (Timer.ElapsedMilliseconds < tableMoveConfig.totalTimeInterval)
             {
                 // Invert rotation direction
                 tableMoveConfig.ReverseDirection();
