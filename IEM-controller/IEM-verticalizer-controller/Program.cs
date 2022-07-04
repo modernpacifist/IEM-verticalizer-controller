@@ -209,11 +209,14 @@ namespace IEM_verticalizer_controller
                 {
                     continue;
                 }
-                Console.Write("Move table into horizontal position? y/n: ");
-                string normalizePositionFlag = Console.ReadLine();
-                if (normalizePositionFlag == "y")
+                if (tableMoveConfig.tableOffset != 0)
                 {
-                    NormalizeHorizontalPosition(ref tableInstance, ref tableMoveConfig);
+                    Console.Write("Move table into horizontal position? y/n: ");
+                    string normalizePositionFlag = Console.ReadLine();
+                    if (normalizePositionFlag == "y")
+                    {
+                        NormalizeHorizontalPosition(ref tableInstance, ref tableMoveConfig);
+                    }
                 }
                 break;
             }
@@ -285,7 +288,6 @@ namespace IEM_verticalizer_controller
             Table tableInstance = new Table();
 
             // Initiate connection with the engine
-            //InitiateConnection(ref tableInstance);
             EngineControl.InitiateConnection(ref tableInstance);
 
             Console.WriteLine("What mode do you wish to engage?");
@@ -297,7 +299,7 @@ namespace IEM_verticalizer_controller
                 userInputMode = Console.ReadLine();
             }
 
-            // max offset is 2500
+            // max offset is 2500 (not correct)
 
             Console.Write("Input speed, available values are [0.05 - 0.5]: ");
             float tableSpeed = float.Parse(Console.ReadLine());
