@@ -11,26 +11,27 @@ namespace IEM_verticalizer_controller
         public double tableOffset = 0.0;
         public readonly float rotationSpeed = 0.0f;
         // totalTimeInterval value is in milliseconds
-        public int totalTimeInterval = 0;
-        public readonly int halfInterval = 0;
-        public readonly int fullInterval = 0;
+        public int totalWorkTime = 0;
+        public readonly int halfIterationTime = 0;
+        public readonly int fullIterationTime = 0;
         public bool directionFlag = true;
 
-        public TableMovementConfig(float rotationSpeed, int halfInterval, int totalTimeInterval)
+        public TableMovementConfig(float rotationSpeed, int halfIterationTime, int totalWorkTime)
         {
             this.rotationSpeed = rotationSpeed;
-            // converting into milliseconds
-            this.halfInterval = halfInterval * 1000;
-            this.fullInterval = halfInterval * 1000 * 2;
-            //this.totalTimeInterval = totalTimeInterval;
-            this.totalTimeInterval = totalTimeInterval * 1000;
+            // converting seconds into milliseconds for System.Threading.Thread.Sleep()
+            this.halfIterationTime = halfIterationTime * 1000;
+            this.fullIterationTime = halfIterationTime * 1000 * 2;
+            this.totalWorkTime = totalWorkTime * 1000;
         }
 
-        public void ExpandTotalTimeInterval(int millisecondsToAdd)
+        // extending total work time of automatic mode by integration with the engine
+        public void ExtendTotalWorkTime(int millisecondsToAdd)
         {
-            this.totalTimeInterval += millisecondsToAdd;
+            this.totalWorkTime += millisecondsToAdd;
         }
 
+        // must be checked before each iteration
         public void LegalOffsetCheck()
         {
             //if (tableMoveConfig.directionFlag == false && tableMoveConfig.tableOffset > 3600)
@@ -49,24 +50,25 @@ namespace IEM_verticalizer_controller
             Console.WriteLine(string.Format("Current table offset: {0}\n", this.tableOffset));
         }
 
-        public void ReverseDirection()
+        public void InverseDirection()
         {
             this.directionFlag = !this.directionFlag;
         }
 
-        public void CalculatePosition(double timeValue)
+        public void CalculateCurrentOffset(double moveTimeInterval)
         {
             if (this.directionFlag)
             {
-                this.tableOffset -= (int)(timeValue * this.rotationSpeed);
+                this.tableOffset -= (int)(moveTimeInterval * this.rotationSpeed);
             }
             else
             {
-                this.tableOffset += (int)(timeValue * this.rotationSpeed);
+                this.tableOffset += (int)(moveTimeInterval * this.rotationSpeed);
             }
         }
     }
 
+    // possibly not needed
     internal class EngineControl
     {
         static public void InitiateConnection(ref Table tableInstance)
@@ -179,7 +181,8 @@ namespace IEM_verticalizer_controller
             return;
         }
 
-        static void ManualMode(ref Table tableInstance, ref TableMovementConfig tableMoveConfig)
+        //static void ManualMode(ref Table tableInstance, ref TableMovementConfig tableMoveConfig)
+        static void ManualMode(ref Table tableInstance)
         {
             Console.Write("MANUAL mode engaged...\n");
             while (true)
@@ -258,23 +261,23 @@ namespace IEM_verticalizer_controller
 
             SetDirection(ref tableInstance, tableMoveConfig.directionFlag);
             StartEngine(ref tableInstance);
-            System.Threading.Thread.Sleep(tableMoveConfig.halfInterval);
+            System.Threading.Thread.Sleep(tableMoveConfig.halfIterationTime);
             StopEngine(ref tableInstance);
-            tableMoveConfig.CalculatePosition(tableMoveConfig.halfInterval);
+            tableMoveConfig.CalculateCurrentOffset(tableMoveConfig.halfIterationTime);
             tableMoveConfig.PrintCurrentOffset();
 
             //while (Timer.Elapsed.TotalSeconds < tableMoveConfig.totalTimeInterval)
-            while (Timer.ElapsedMilliseconds < tableMoveConfig.totalTimeInterval)
+            while (Timer.ElapsedMilliseconds < tableMoveConfig.totalWorkTime)
             {
                 // Invert rotation direction
-                tableMoveConfig.ReverseDirection();
+                tableMoveConfig.InverseDirection();
 
                 // Setting direction to clockwise
                 SetDirection(ref tableInstance, tableMoveConfig.directionFlag);
                 StartEngine(ref tableInstance);
-                System.Threading.Thread.Sleep(tableMoveConfig.fullInterval);
+                System.Threading.Thread.Sleep(tableMoveConfig.fullIterationTime);
                 StopEngine(ref tableInstance);
-                tableMoveConfig.CalculatePosition(tableMoveConfig.fullInterval);
+                tableMoveConfig.CalculateCurrentOffset(tableMoveConfig.fullIterationTime);
                 tableMoveConfig.PrintCurrentOffset();
             }
             Timer.Stop();
@@ -301,18 +304,19 @@ namespace IEM_verticalizer_controller
 
             // max offset is 2500 (not correct)
 
-            Console.Write("Input speed, available values are [0.05 - 0.5]: ");
-            float tableSpeed = float.Parse(Console.ReadLine());
-            Console.Write("Input rotation interval (in seconds): ");
-            int timeInterval = int.Parse(Console.ReadLine());
-            Console.Write("Input overall time interval (in seconds): ");
-            int totalTimeInterval = int.Parse(Console.ReadLine());
+            //Console.Write("Input speed, available values are [0.05 - 0.5]: ");
+            //float tableSpeed = float.Parse(Console.ReadLine());
+            //Console.Write("Input rotation interval (in seconds): ");
+            //int timeInterval = int.Parse(Console.ReadLine());
+            //Console.Write("Input overall time interval (in seconds): ");
+            //int totalTimeInterval = int.Parse(Console.ReadLine());
 
-            TableMovementConfig movementConfig = new TableMovementConfig(tableSpeed, timeInterval, totalTimeInterval);
+            //TableMovementConfig movementConfig = new TableMovementConfig(tableSpeed, timeInterval, totalTimeInterval);
 
             // Intercept Ctrl+C from the user input during execution
             Console.CancelKeyPress += delegate
             {
+                //EmergencyStop(ref tableInstance, ref movementConfig);
                 EmergencyStop(ref tableInstance, ref movementConfig);
             };
 
@@ -320,9 +324,18 @@ namespace IEM_verticalizer_controller
             switch (userInputMode)
             {
                 case "m":
-                    ManualMode(ref tableInstance, ref movementConfig);
+                    //ManualMode(ref tableInstance, ref movementConfig);
+                    ManualMode(ref tableInstance);
                     break;
                 case "a":
+                    Console.Write("Input speed, available values are [0.05 - 0.5]: ");
+                    float tableSpeed = float.Parse(Console.ReadLine());
+                    Console.Write("Input rotation interval (in seconds): ");
+                    int timeInterval = int.Parse(Console.ReadLine());
+                    Console.Write("Input overall time interval (in seconds): ");
+                    int totalTimeInterval = int.Parse(Console.ReadLine());
+
+                    TableMovementConfig movementConfig = new TableMovementConfig(tableSpeed, timeInterval, totalTimeInterval);
                     AutomaticMode(ref tableInstance, ref movementConfig);
                     break;
             }
